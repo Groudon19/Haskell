@@ -2,6 +2,7 @@
 module Parser where
 
 import Token
+import Ri
 import qualified Lex as L
 
 }

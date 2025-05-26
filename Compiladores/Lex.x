@@ -19,6 +19,7 @@ tokens :-
 <0> "/" {\s -> DIV}  
 <0> "(" {\s -> LPAR}  
 <0> ")" {\s -> RPAR}  
+-- colocar <= antes de < (pois se não consumiria o menor sempre e nunca chegaria no <=)
 
 {
 -- As acoes tem tipo :: String -> Token

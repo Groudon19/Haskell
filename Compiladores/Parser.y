@@ -23,17 +23,17 @@ import qualified Lex as L
 
 %%
 
-Expr  : Expr '+' Term       {$1 + $3}
-      | Expr '-' Term       {$1 - $3}
+Expr  : Expr '+' Term       {Add $1 $3}
+      | Expr '-' Term       {Sub $1 $3}
       | Term                {$1}
 
-Term  : Term  '*' Factor    {$1 * $3}
-      | Term '/' Factor     {$1 / $3}
+Term  : Term  '*' Factor    {Mul $1 $3}
+      | Term '/' Factor     {Div $1 $3}
       | Factor              {$1}
 
-Factor : Num                {$1}
+Factor : Num                {Const $1}
        | '(' Expr ')'       {$2}  
-       | '-' Factor         {negate $2}
+       | '-' Factor         {Neg $2}
 
 
 {

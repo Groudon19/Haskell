@@ -12,5 +12,6 @@ data Expr
 data ExprR 
      = Req Expr Expr
      | Rdif Expr Expr
+     | Rle Expr Expr
      deriving Show
 

@@ -17,15 +17,16 @@ import qualified Lex as L
   '/' {DIV}
   '(' {LPAR}
   ')' {RPAR}
+  '=='{TEQ}
   Num {NUM $$}
 
 
 %%
 
-Inicio : ExprR              {}
-       | Expr               {}
+Inicio : ExprR              {Left $1}
+       | Expr               {Right $1}
 
-ExprR : Expr '==' Expr      {}
+ExprR : ExprR '==' ExprR    {$1 == $3}
 
 Expr  : Expr '+' Term       {$1 + $3}
       | Expr '-' Term       {$1 - $3}
@@ -45,5 +46,5 @@ parseError s = error ("Parse error:" ++ show s)
 
 main = do putStr "Expressão:"
           s <- getLine
-          print (calc (L.alexScanTokens s))
+          print (calc (L.alexScanTokens s)) -- Tem que alterar a main pra acomodar o Right e Left
 }

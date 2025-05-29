@@ -26,7 +26,7 @@ import qualified Lex as L
 Inicio : ExprR              {Left $1}
        | Expr               {Right $1}
 
-ExprR : ExprR '==' ExprR    {$1 == $3}
+ExprR : Expr '==' Expr    {$1 == $3}
 
 Expr  : Expr '+' Term       {$1 + $3}
       | Expr '-' Term       {$1 - $3}

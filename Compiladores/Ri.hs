@@ -9,3 +9,7 @@ data Expr
      | Const Double 
      deriving Show
 
+data ExprR 
+     = Req Expr Expr
+     deriving Show
+

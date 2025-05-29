@@ -18,10 +18,16 @@ import qualified Lex as L
   '/' {DIV}
   '(' {LPAR}
   ')' {RPAR}
+  '=='{TEQ}
   Num {NUM $$}
 
 
 %%
+
+Inicio : ExprR              {Left $1}
+       | Expr               {Right $1}
+
+ExprR : Expr '==' Expr    {Req $1 $3}
 
 Expr  : Expr '+' Term       {Add $1 $3}
       | Expr '-' Term       {Sub $1 $3}

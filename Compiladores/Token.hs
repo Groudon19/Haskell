@@ -8,5 +8,6 @@ data Token
   | DIV
   | LPAR
   | RPAR
+  | TEQ
   deriving (Eq, Show)
   

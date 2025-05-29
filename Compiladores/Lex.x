@@ -18,7 +18,8 @@ tokens :-
 <0> "*" {\s -> MUL}  
 <0> "/" {\s -> DIV}  
 <0> "(" {\s -> LPAR}  
-<0> ")" {\s -> RPAR}  
+<0> ")" {\s -> RPAR}
+<0> "=="{\s -> TEQ}
 -- colocar <= antes de < (pois se não consumiria o menor sempre e nunca chegaria no <=)
 
 {

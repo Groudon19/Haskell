@@ -2,7 +2,6 @@
 module Parser where
 
 import Token
-import Ri
 import qualified Lex as L
 
 }
@@ -23,17 +22,21 @@ import qualified Lex as L
 
 %%
 
-Expr  : Expr '+' Term       {Add $1 $3}
-      | Expr '-' Term       {Sub $1 $3}
+Inicio : ExprR              {}
+       | Expr               {}
+
+ExprR : Expr '==' Expr      {}
+
+Expr  : Expr '+' Term       {$1 + $3}
+      | Expr '-' Term       {$1 - $3}
       | Term                {$1}
 
-Term  : Term  '*' Factor    {Mul $1 $3}
-      | Term '/' Factor     {Div $1 $3}
+Term  : Term  '*' Factor    {$1 * $3}
+      | Term '/' Factor     {$1 / $3}
       | Factor              {$1}
 
-Factor : Num                {Const $1}
-       | '(' Expr ')'       {$2}  
-       | '-' Factor         {Neg $2}
+Factor : Num                {$1}
+       | '(' Expr ')'       {$2}      
 
 
 {

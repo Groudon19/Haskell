@@ -21,6 +21,7 @@ import qualified Lex as L
   '=='{TEQ}
   '/='{TDIF}
   '<='{TLE}
+  '>='{TGE}
   Num {NUM $$}
 
 
@@ -32,6 +33,7 @@ Inicio : ExprR              {Left $1}
 ExprR : Expr '==' Expr      {Req $1 $3}
       | Expr '/=' Expr      {Rdif $1 $3}
       | Expr '<=' Expr      {Rle $1 $3}
+      | Expr '>=' Expr      {Rge $1 $3}
 
 Expr  : Expr '+' Term       {Add $1 $3}
       | Expr '-' Term       {Sub $1 $3}

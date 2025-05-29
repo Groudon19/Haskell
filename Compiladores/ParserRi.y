@@ -19,6 +19,7 @@ import qualified Lex as L
   '(' {LPAR}
   ')' {RPAR}
   '=='{TEQ}
+  '/='{TDIF}
   Num {NUM $$}
 
 
@@ -27,7 +28,8 @@ import qualified Lex as L
 Inicio : ExprR              {Left $1}
        | Expr               {Right $1}
 
-ExprR : Expr '==' Expr    {Req $1 $3}
+ExprR : Expr '==' Expr      {Req $1 $3}
+      | Expr '/=' Expr      {Rdif $1 $3}
 
 Expr  : Expr '+' Term       {Add $1 $3}
       | Expr '-' Term       {Sub $1 $3}

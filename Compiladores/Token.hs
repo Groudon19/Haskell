@@ -9,5 +9,6 @@ data Token
   | LPAR
   | RPAR
   | TEQ
+  | TDIF
   deriving (Eq, Show)
   

@@ -607,100 +607,101 @@ alex_gscan stop__ p c bs inp__ (sc,state__) =
 alex_tab_size :: Int
 alex_tab_size = 8
 alex_base :: Data.Array.Array Int Int
-alex_base = Data.Array.listArray (0 :: Int, 12)
+alex_base = Data.Array.listArray (0 :: Int, 13)
   [ -8
   , 0
   , 0
   , 0
-  , -40
+  , 0
+  , -55
+  , -2
+  , -36
   , 6
-  , 16
   , 18
-  , -54
   , 0
   , 0
   , 0
-  , 0
+  , -39
   ]
 
 alex_table :: Data.Array.Array Int Int
 alex_table = Data.Array.listArray (0 :: Int, 273)
   [ 0
-  , 7
-  , 7
-  , 7
-  , 7
-  , 7
-  , 5
-  , 9
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 7
-  , 0
-  , 0
-  , 7
-  , 7
-  , 7
-  , 7
-  , 7
-  , 11
-  , 10
-  , 1
+  , 6
+  , 6
+  , 6
+  , 6
+  , 6
   , 3
-  , 0
-  , 2
-  , 0
-  , 12
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
-  , 4
+  , 6
+  , 6
+  , 6
+  , 6
+  , 6
   , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 4
+  , 0
+  , 6
   , 0
   , 0
+  , 0
+  , 0
+  , 0
+  , 6
+  , 0
+  , 1
+  , 2
+  , 12
+  , 10
+  , 0
+  , 11
+  , 0
+  , 13
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 0
+  , 0
+  , 0
+  , 5
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
+  , 7
   , 8
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
-  , 6
   , 0
-  , 0
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
+  , 9
   , 0
   , 0
   , 0
@@ -909,8 +910,12 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   , 11
   , 12
   , 13
-  , 46
   , 61
+  , 9
+  , 10
+  , 11
+  , 12
+  , 13
   , 48
   , 49
   , 50
@@ -921,7 +926,9 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   , 55
   , 56
   , 57
+  , 61
   , -1
+  , 32
   , -1
   , -1
   , -1
@@ -929,12 +936,6 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   , -1
   , 32
   , -1
-  , -1
-  , 9
-  , 10
-  , 11
-  , 12
-  , 13
   , 40
   , 41
   , 42
@@ -953,7 +954,7 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   , 55
   , 56
   , 57
-  , 32
+  , -1
   , -1
   , -1
   , 61
@@ -967,6 +968,8 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   , 55
   , 56
   , 57
+  , 46
+  , -1
   , 48
   , 49
   , 50
@@ -977,8 +980,6 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   , 55
   , 56
   , 57
-  , -1
-  , -1
   , -1
   , -1
   , -1
@@ -1180,7 +1181,7 @@ alex_check = Data.Array.listArray (0 :: Int, 273)
   ]
 
 alex_deflt :: Data.Array.Array Int Int
-alex_deflt = Data.Array.listArray (0 :: Int, 12)
+alex_deflt = Data.Array.listArray (0 :: Int, 13)
   [ -1
   , -1
   , -1
@@ -1194,33 +1195,36 @@ alex_deflt = Data.Array.listArray (0 :: Int, 12)
   , -1
   , -1
   , -1
+  , -1
   ]
 
-alex_accept = Data.Array.listArray (0 :: Int, 12)
+alex_accept = Data.Array.listArray (0 :: Int, 13)
   [ AlexAccNone
+  , AlexAcc 9
   , AlexAcc 8
   , AlexAcc 7
   , AlexAcc 6
+  , AlexAccNone
+  , AlexAccSkip
   , AlexAcc 5
   , AlexAccNone
   , AlexAcc 4
-  , AlexAccSkip
-  , AlexAccNone
   , AlexAcc 3
   , AlexAcc 2
   , AlexAcc 1
   , AlexAcc 0
   ]
 
-alex_actions = Data.Array.array (0 :: Int, 9)
-  [ (8,alex_action_4)
-  , (7,alex_action_3)
-  , (6,alex_action_2)
+alex_actions = Data.Array.array (0 :: Int, 10)
+  [ (9,alex_action_6)
+  , (8,alex_action_7)
+  , (7,alex_action_8)
+  , (6,alex_action_9)
   , (5,alex_action_1)
   , (4,alex_action_1)
-  , (3,alex_action_8)
-  , (2,alex_action_7)
-  , (1,alex_action_6)
+  , (3,alex_action_2)
+  , (2,alex_action_3)
+  , (1,alex_action_4)
   , (0,alex_action_5)
   ]
 
@@ -1232,6 +1236,7 @@ alex_action_5 = \s -> DIV
 alex_action_6 = \s -> LPAR
 alex_action_7 = \s -> RPAR
 alex_action_8 = \s -> TEQ
+alex_action_9 = \s -> TDIF
 
 #define ALEX_NOPRED 1
 -- -----------------------------------------------------------------------------
@@ -1460,7 +1465,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 25 "Lex.x" #-}
+{-# LINE 26 "Lex.x" #-}
 -- As acoes tem tipo :: String -> Token
 
 testLex = do s <- getLine

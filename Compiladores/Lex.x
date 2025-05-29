@@ -20,6 +20,7 @@ tokens :-
 <0> "(" {\s -> LPAR}  
 <0> ")" {\s -> RPAR}
 <0> "=="{\s -> TEQ}
+<0> "/="{\s -> TDIF}
 -- colocar <= antes de < (pois se não consumiria o menor sempre e nunca chegaria no <=)
 
 {

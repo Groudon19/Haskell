@@ -54,5 +54,7 @@ parseError s = error ("Parse error:" ++ show s)
 
 main = do putStr "Expressão:"
           s <- getLine
-          print (calc (L.alexScanTokens s))
+          case (calc (L.alexScanTokens s)) of
+            Left l  -> print l
+            Right r -> print r
 }

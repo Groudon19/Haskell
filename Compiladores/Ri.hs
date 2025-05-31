@@ -14,5 +14,6 @@ data ExprR
      | Rdif Expr Expr
      | Rle Expr Expr
      | Rge Expr Expr
+     | Rlt Expr Expr
      deriving Show
 

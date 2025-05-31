@@ -23,6 +23,7 @@ tokens :-
 <0> "/="{\s -> TDIF}
 <0> "<="{\s -> TLE}
 <0> ">="{\s -> TGE}
+<0> "<" {\s -> TLT}
 -- colocar <= antes de < (pois se não consumiria o menor sempre e nunca chegaria no <=)
 
 {

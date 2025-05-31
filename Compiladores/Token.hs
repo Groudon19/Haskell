@@ -13,5 +13,6 @@ data Token
   | TLE
   | TGE
   | TLT
+  | TGT
   deriving (Eq, Show)
   

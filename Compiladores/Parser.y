@@ -22,6 +22,7 @@ import qualified Lex as L
   '<='{TLE}
   '>='{TGE}
   '<' {TLT}
+  '>' {TGT}
   Num {NUM $$}
 
 
@@ -35,6 +36,7 @@ ExprR : Expr '==' Expr    {$1 == $3}
       | Expr '<=' Expr    {$1 <= $3}
       | Expr '>=' Expr    {$1 >= $3}
       | Expr '<'  Expr    {$1 < $3}
+      | Expr '>'  Expr    {$1 > $3}
 
 Expr  : Expr '+' Term       {$1 + $3}
       | Expr '-' Term       {$1 - $3}

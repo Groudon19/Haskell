@@ -19,6 +19,6 @@ data ExprR
      deriving Show
 
 data ExprL
-     = And ExprR ExprR
+     = And ExprL ExprL
      | Rel ExprR
      deriving Show

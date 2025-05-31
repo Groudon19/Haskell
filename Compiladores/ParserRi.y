@@ -30,11 +30,14 @@ import qualified Lex as L
 
 %%
 
-Inicio : ExprL              {Left $1}
-       | Expr               {Right $1}
+Inicio: ExprL               {Left $1}
+      | Expr                {Right $1}
 
-ExprL : ExprR '&&' ExprR    {And $1 $3} -- Se eu troco por ExprL tem um shift/reduction conflict
-      | ExprR               {Rel $1}
+ExprL : Bool '&&' Bool      {And $1 $3}
+      | Bool                {$1}
+
+Bool  : ExprR               {Rel $1}
+      | '(' ExprL ')'       {$2}
 
 ExprR : Expr '==' Expr      {Req $1 $3}
       | Expr '/=' Expr      {Rdif $1 $3}
@@ -51,9 +54,9 @@ Term  : Term '*' Factor     {Mul $1 $3}
       | Term '/' Factor     {Div $1 $3}
       | Factor              {$1}
 
-Factor : Num                {Const $1}
-       | '(' Expr ')'       {$2}  
-       | '-' Factor         {Neg $2}
+Factor: Num                 {Const $1}
+      | '(' Expr ')'        {$2}  
+      | '-' Factor          {Neg $2}
 
 
 {

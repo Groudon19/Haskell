@@ -12,5 +12,6 @@ data Token
   | TDIF
   | TLE
   | TGE
+  | TLT
   deriving (Eq, Show)
   

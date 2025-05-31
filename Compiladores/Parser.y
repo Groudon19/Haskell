@@ -43,7 +43,8 @@ Term  : Term  '*' Factor    {$1 * $3}
       | Factor              {$1}
 
 Factor : Num                {$1}
-       | '(' Expr ')'       {$2}      
+       | '(' Expr ')'       {$2}
+       | '-' Factor         {negate $2}
 
 
 {
@@ -52,5 +53,7 @@ parseError s = error ("Parse error:" ++ show s)
 
 main = do putStr "Expressão:"
           s <- getLine
-          print (calc (L.alexScanTokens s)) -- Tem que alterar a main pra acomodar o Right e Left
+          case (calc (L.alexScanTokens s)) of
+            Left l  -> print l
+            Right r -> print r
 }

@@ -14,5 +14,6 @@ data Token
   | TGE
   | TLT
   | TGT
+  | TAND
   deriving (Eq, Show)
   

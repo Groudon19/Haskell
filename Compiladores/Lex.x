@@ -25,6 +25,7 @@ tokens :-
 <0> ">="{\s -> TGE}
 <0> "<" {\s -> TLT}
 <0> ">" {\s -> TGT}
+<0> "&&"{\s -> TAND}
 -- colocar <= antes de < (pois se não consumiria o menor sempre e nunca chegaria no <=)
 
 {

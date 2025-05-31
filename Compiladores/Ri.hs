@@ -18,3 +18,7 @@ data ExprR
      | Rgt Expr Expr
      deriving Show
 
+data ExprL
+     = And ExprR ExprR
+     | Rel ExprR
+     deriving Show

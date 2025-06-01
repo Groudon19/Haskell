@@ -26,6 +26,7 @@ tokens :-
 <0> "<" {\s -> TLT}
 <0> ">" {\s -> TGT}
 <0> "&&"{\s -> TAND}
+<0> "||"{\s -> TOR}
 -- colocar <= antes de < (pois se não consumiria o menor sempre e nunca chegaria no <=)
 
 {

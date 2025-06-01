@@ -24,6 +24,7 @@ import qualified Lex as L
   '<' {TLT}
   '>' {TGT}
   '&&'{TAND}
+  '||'{TOR}
   Num {NUM $$}
 
 
@@ -32,7 +33,8 @@ import qualified Lex as L
 Inicio: ExprL               {Left $1}
       | Expr                {Right $1}
 
-ExprL : Bool '&&' Bool      {$1 && $3}
+ExprL : ExprL '&&' Bool      {$1 && $3}
+      | ExprL '||' Bool      {$1 || $3}
       | Bool                {$1}
 
 Bool  : ExprR               {$1}
@@ -49,7 +51,7 @@ Expr  : Expr '+' Term       {$1 + $3}
       | Expr '-' Term       {$1 - $3}
       | Term                {$1}
 
-Term  : Term  '*' Factor    {$1 * $3}
+Term  : Term '*' Factor     {$1 * $3}
       | Term '/' Factor     {$1 / $3}
       | Factor              {$1}
 

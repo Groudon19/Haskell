@@ -15,5 +15,6 @@ data Token
   | TLT
   | TGT
   | TAND
+  |TOR
   deriving (Eq, Show)
   

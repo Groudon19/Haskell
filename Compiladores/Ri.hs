@@ -21,5 +21,6 @@ data ExprR
 data ExprL
      = And ExprL ExprL
      | Or  ExprL ExprL
+     | Not ExprL
      | Rel ExprR
      deriving Show

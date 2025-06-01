@@ -26,6 +26,7 @@ import qualified Lex as L
   '>' {TGT}
   '&&'{TAND}
   '||'{TOR}
+  '!' {TNOT}
   Num {NUM $$}
 
 
@@ -40,6 +41,7 @@ ExprL : ExprL '&&' Bool     {And $1 $3}
 
 Bool  : ExprR               {Rel $1}
       | '(' ExprL ')'       {$2}
+      | '!' Bool            {Not $2}
 
 ExprR : Expr '==' Expr      {Req $1 $3}
       | Expr '/=' Expr      {Rdif $1 $3}

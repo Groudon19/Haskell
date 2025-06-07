@@ -610,27 +610,27 @@ alex_base :: Data.Array.Array Int Int
 alex_base = Data.Array.listArray (0 :: Int, 22)
   [ -8
   , 0
-  , 0
-  , 0
-  , 0
   , -55
+  , -54
   , 0
   , 0
   , 0
-  , -41
+  , -53
+  , 0
+  , -39
   , 7
   , 19
   , 68
-  , -44
-  , 0
-  , 0
-  , -106
-  , 0
   , -19
-  , -40
-  , -39
   , 0
   , 0
+  , -41
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , -103
   ]
 
 alex_table :: Data.Array.Array Int Int
@@ -641,55 +641,55 @@ alex_table = Data.Array.listArray (0 :: Int, 323)
   , 12
   , 12
   , 12
+  , 4
+  , 5
+  , 8
+  , 10
+  , 10
+  , 10
+  , 10
+  , 10
+  , 10
+  , 10
+  , 10
+  , 10
+  , 10
   , 1
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 2
-  , 15
-  , 17
-  , 0
+  , 6
   , 21
-  , 22
+  , 0
   , 0
   , 12
+  , 20
+  , 0
+  , 0
+  , 0
+  , 0
+  , 13
+  , 0
+  , 15
   , 14
-  , 0
-  , 0
-  , 0
+  , 17
+  , 19
   , 0
   , 18
   , 0
-  , 4
+  , 16
+  , 11
+  , 11
+  , 11
+  , 11
+  , 11
+  , 11
+  , 11
+  , 11
+  , 11
+  , 11
+  , 0
+  , 0
   , 3
-  , 6
-  , 8
-  , 0
   , 7
-  , 0
-  , 5
-  , 11
-  , 11
-  , 11
-  , 11
-  , 11
-  , 11
-  , 11
-  , 11
-  , 11
-  , 11
-  , 0
-  , 0
-  , 20
-  , 13
-  , 19
+  , 2
   , 10
   , 10
   , 10
@@ -751,7 +751,7 @@ alex_table = Data.Array.listArray (0 :: Int, 323)
   , 0
   , 0
   , 0
-  , 16
+  , 22
   , 0
   , 0
   , 0
@@ -970,6 +970,8 @@ alex_check = Data.Array.listArray (0 :: Int, 323)
   , 12
   , 13
   , 61
+  , 61
+  , 61
   , 48
   , 49
   , 50
@@ -980,12 +982,10 @@ alex_check = Data.Array.listArray (0 :: Int, 323)
   , 55
   , 56
   , 57
+  , 38
   , 61
   , 124
-  , 38
   , -1
-  , 61
-  , 61
   , -1
   , 32
   , 33
@@ -1324,60 +1324,60 @@ alex_accept = Data.Array.listArray (0 :: Int, 22)
   , AlexAcc 13
   , AlexAcc 12
   , AlexAcc 11
-  , AlexAcc 10
-  , AlexAcc 9
   , AlexAccNone
+  , AlexAcc 10
+  , AlexAccNone
+  , AlexAcc 9
   , AlexAcc 8
-  , AlexAcc 7
   , AlexAccSkip
   , AlexAccNone
+  , AlexAcc 7
   , AlexAcc 6
   , AlexAcc 5
-  , AlexAccNone
   , AlexAcc 4
-  , AlexAccNone
   , AlexAcc 3
   , AlexAcc 2
   , AlexAcc 1
   , AlexAcc 0
+  , AlexAccNone
   ]
 
 alex_actions = Data.Array.array (0 :: Int, 17)
-  [ (16,alex_action_9)
-  , (15,alex_action_8)
-  , (14,alex_action_7)
-  , (13,alex_action_6)
-  , (12,alex_action_5)
-  , (11,alex_action_4)
-  , (10,alex_action_3)
-  , (9,alex_action_2)
+  [ (16,alex_action_8)
+  , (15,alex_action_7)
+  , (14,alex_action_6)
+  , (13,alex_action_5)
+  , (12,alex_action_4)
+  , (11,alex_action_3)
+  , (10,alex_action_2)
+  , (9,alex_action_1)
   , (8,alex_action_1)
-  , (7,alex_action_1)
-  , (6,alex_action_16)
-  , (5,alex_action_15)
-  , (4,alex_action_14)
-  , (3,alex_action_13)
-  , (2,alex_action_12)
-  , (1,alex_action_11)
-  , (0,alex_action_10)
+  , (7,alex_action_16)
+  , (6,alex_action_15)
+  , (5,alex_action_14)
+  , (4,alex_action_13)
+  , (3,alex_action_12)
+  , (2,alex_action_11)
+  , (1,alex_action_10)
+  , (0,alex_action_9)
   ]
 
 alex_action_1 = \s -> NUM (read s)
-alex_action_2 = \s -> ADD
-alex_action_3 = \s -> SUB
-alex_action_4 = \s -> MUL
-alex_action_5 = \s -> DIV
-alex_action_6 = \s -> LPAR
-alex_action_7 = \s -> RPAR
-alex_action_8 = \s -> TEQ
-alex_action_9 = \s -> TDIF
-alex_action_10 = \s -> TLE
-alex_action_11 = \s -> TGE
-alex_action_12 = \s -> TLT
-alex_action_13 = \s -> TGT
-alex_action_14 = \s -> TAND
-alex_action_15 = \s -> TOR
-alex_action_16 = \s -> TNOT
+alex_action_2 = \s -> TEQ
+alex_action_3 = \s -> TDIF
+alex_action_4 = \s -> TLE
+alex_action_5 = \s -> TGE
+alex_action_6 = \s -> TLT
+alex_action_7 = \s -> TGT
+alex_action_8 = \s -> TAND
+alex_action_9 = \s -> TOR
+alex_action_10 = \s -> TNOT
+alex_action_11 = \s -> ADD
+alex_action_12 = \s -> SUB
+alex_action_13 = \s -> MUL
+alex_action_14 = \s -> DIV
+alex_action_15 = \s -> LPAR
+alex_action_16 = \s -> RPAR
 
 #define ALEX_NOPRED 1
 -- -----------------------------------------------------------------------------
@@ -1606,7 +1606,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 33 "Lex.x" #-}
+{-# LINE 32 "Lex.x" #-}
 -- As acoes tem tipo :: String -> Token
 
 testLex = do s <- getLine

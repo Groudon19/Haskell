@@ -1,7 +1,8 @@
 module Token where
 
 data Token
-  = NUM Double
+  = NUMINT Int
+  | NUMDOUBLE Double
   | ADD
   | SUB
   | MUL

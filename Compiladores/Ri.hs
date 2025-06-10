@@ -1,12 +1,16 @@
 module Ri where
 
+data TConst
+     = CDouble Double
+     | CInt Int
+     deriving (Eq, Show)
 data Expr
      = Add Expr Expr
      | Sub Expr Expr 
      | Mul Expr Expr 
      | Div Expr Expr 
      | Neg Expr 
-     | Const Double 
+     | Const TConst 
      deriving Show
 
 data ExprR 

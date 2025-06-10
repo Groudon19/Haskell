@@ -7,12 +7,13 @@ import Token
 %wrapper "basic"
 
 $digit = [0-9]          -- digits
-@num = $digit+(\.$digit+)?
+@numDouble = $digit+(\.$digit+)?
+@numInt = $digit+
 
 tokens :-
 
 <0> $white+ ;
-<0> @num {\s -> NUM (read s)}
+
 <0> "=="{\s -> TEQ}
 <0> "/="{\s -> TDIF}
 <0> "<="{\s -> TLE}
@@ -28,6 +29,10 @@ tokens :-
 <0> "/" {\s -> DIV}  
 <0> "(" {\s -> LPAR}  
 <0> ")" {\s -> RPAR}
+
+<0> @numDouble{\s -> NUMDOUBLE (read s)}
+<0> @numInt{\s -> NUMINT (read s)}
+
 
 {
 -- As acoes tem tipo :: String -> Token

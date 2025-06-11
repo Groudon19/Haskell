@@ -29,6 +29,7 @@ import qualified Lex as L
   '!' {TNOT}
   NumDouble {NUMDOUBLE $$}
   NumInt {NUMINT $$}
+  Literal {LIT $$}
 
 
 %%
@@ -59,9 +60,10 @@ Term  : Term '*' Factor     {Mul $1 $3}
       | Term '/' Factor     {Div $1 $3}
       | Factor              {$1}
 
-Factor: TConst                 {Const $1}
+Factor: TConst              {Const $1}
       | '(' Expr ')'        {$2}  
       | '-' Factor          {Neg $2}
+      | Literal             {Lit $1}
 
 TConst: NumDouble {CDouble $1}
       | NumInt    {CInt $1}

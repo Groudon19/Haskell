@@ -9,6 +9,7 @@ import Token
 $digit = [0-9]          -- digits
 @numDouble = $digit+(\.$digit+)?
 @numInt = $digit+
+@literal = \"([^\"]|\\.)*\" --"(todo caracter que nao é aspas duplas | escape sequence)*"
 
 tokens :-
 
@@ -32,6 +33,7 @@ tokens :-
 
 <0> @numDouble{\s -> NUMDOUBLE (read s)}
 <0> @numInt{\s -> NUMINT (read s)}
+<0> @literal{\s -> LIT (init (tail s))}
 
 
 {

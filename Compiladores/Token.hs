@@ -3,6 +3,7 @@ module Token where
 data Token
   = NUMINT Int
   | NUMDOUBLE Double
+  | LIT String
   | ADD
   | SUB
   | MUL

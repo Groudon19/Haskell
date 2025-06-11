@@ -10,7 +10,8 @@ data Expr
      | Mul Expr Expr 
      | Div Expr Expr 
      | Neg Expr 
-     | Const TConst 
+     | Const TConst
+     | Lit String
      deriving Show
 
 data ExprR 

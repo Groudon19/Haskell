@@ -33,6 +33,11 @@ tokens :-
 <0> "(" {\s -> LPAR}  
 <0> ")" {\s -> RPAR}
 <0> "," {\s -> COMMA}
+<0> ";" {\s -> TEND}
+
+<0> "int" {\s -> INT}
+<0> "double" {\s -> DOUBLE}
+<0> "string" {\s -> STRING}
 
 <0> @numDouble{\s -> NUMDOUBLE (read s)}
 <0> @numInt{\s -> NUMINT (read s)}

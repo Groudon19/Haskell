@@ -5,6 +5,9 @@ data Token
   | NUMDOUBLE Double
   | LIT String
   | ID String
+  | DOUBLE
+  | INT
+  | STRING
   | ADD
   | SUB
   | MUL
@@ -21,5 +24,6 @@ data Token
   | TOR
   | TNOT
   | COMMA
+  | TEND --;
   deriving (Eq, Show)
   

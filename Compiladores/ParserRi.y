@@ -28,6 +28,10 @@ import qualified Lex as L
   '||'{TOR}
   '!' {TNOT}
   ',' {COMMA}
+  ';' {TEND}
+  'int' {INT}
+  'double' {DOUBLE}
+  'string' {STRING}
   NumDouble {NUMDOUBLE $$}
   NumInt {NUMINT $$}
   Id {ID $$}
@@ -38,7 +42,19 @@ import qualified Lex as L
 
 Inicio: Expr                {Expr $1}
       | ExprL               {ExprL $1}
-      
+      | Declaracoes         {Declaracoes $1}
+
+Declaracoes: Declaracoes Declaracao {$1 ++ $2}
+           | Declaracao       {$1}
+
+Declaracao: Tipo ListaId ';' {map (\x -> x:#:($1, 0)) $2}
+
+Tipo  : 'double' {TDouble}
+      | 'int'    {TInt}
+      | 'string' {TString}
+
+ListaId: ListaId ',' Id      {$1 ++ [$3]}
+       | Id                  {[$1]}     
 
 ExprL : ExprL '&&' Bool     {And $1 $3}
       | ExprL '||' Bool     {Or $1 $3}
@@ -63,9 +79,6 @@ Term  : Term '*' Factor     {Mul $1 $3}
       | Term '/' Factor     {Div $1 $3}
       | Factor              {$1}
 
--- ListaId: ListaId ',' Id     {$1 ++ [$3]}
---       | Id                  {[$1]}
-
 Factor: TConst              {Const $1}
       | '(' Expr ')'        {$2}  
       | '-' Factor          {Neg $2}
@@ -84,6 +97,6 @@ main = do putStr "Expressão:"
           s <- getLine
           print (calc (L.alexScanTokens s))
       --     case (calc (L.alexScanTokens s)) of
-      --       Expr l  -> print l
-      --       ExprL r -> print r
+      --       Expr r  -> print r
+      --       ExprL l -> print l
 }

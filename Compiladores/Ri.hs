@@ -2,15 +2,24 @@ module Ri where
 
 type Id = String
 
+
 data Inicio
      = Expr Expr
      | ExprL ExprL
+     | Declaracoes [Var]
      deriving Show
+
+data Tipo
+     = TDouble
+     | TInt
+     | TString
+     | TVoid
+     deriving (Show, Eq)
 
 data TConst
      = CDouble Double
      | CInt Int
-     deriving (Eq, Show)
+     deriving Show
 data Expr
      = Add Expr Expr
      | Sub Expr Expr 
@@ -36,4 +45,8 @@ data ExprL
      | Or  ExprL ExprL
      | Not ExprL
      | Rel ExprR
+     deriving Show
+
+data Var
+     = Id :#: (Tipo, Int)
      deriving Show

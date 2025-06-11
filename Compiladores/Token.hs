@@ -4,6 +4,7 @@ data Token
   = NUMINT Int
   | NUMDOUBLE Double
   | LIT String
+  | ID String
   | ADD
   | SUB
   | MUL
@@ -19,5 +20,6 @@ data Token
   | TAND
   | TOR
   | TNOT
+  | COMMA
   deriving (Eq, Show)
   

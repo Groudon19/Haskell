@@ -1,5 +1,12 @@
 module Ri where
 
+type Id = String
+
+data Inicio
+     = Expr Expr
+     | ExprL ExprL
+     deriving Show
+
 data TConst
      = CDouble Double
      | CInt Int
@@ -11,6 +18,7 @@ data Expr
      | Div Expr Expr 
      | Neg Expr 
      | Const TConst
+     | IdVar String
      | Lit String
      deriving Show
 

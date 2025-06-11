@@ -6,9 +6,11 @@ import Token
 
 %wrapper "basic"
 
-$digit = [0-9]          -- digits
+$digit = [0-9]
+$letter = [a-zA-Z]
 @numDouble = $digit+(\.$digit+)?
 @numInt = $digit+
+@id = ($letter | \_)($letter | $digit | \_)*
 @literal = \"([^\"]|\\.)*\" --"(todo caracter que nao é aspas duplas | escape sequence)*"
 
 tokens :-
@@ -30,9 +32,11 @@ tokens :-
 <0> "/" {\s -> DIV}  
 <0> "(" {\s -> LPAR}  
 <0> ")" {\s -> RPAR}
+<0> "," {\s -> COMMA}
 
 <0> @numDouble{\s -> NUMDOUBLE (read s)}
 <0> @numInt{\s -> NUMINT (read s)}
+<0> @id{\s -> ID s}
 <0> @literal{\s -> LIT (init (tail s))}
 
 

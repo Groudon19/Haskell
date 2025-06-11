@@ -558,6 +558,7 @@ main = do putStr "Expressão:"
       --     case (calc (L.alexScanTokens s)) of
       --       Expr r  -> print r
       --       ExprL l -> print l
+      --       Declaracoes d -> print d
 -- $Id: GenericTemplate.hs,v 1.26 2005/01/14 14:47:22 simonmar Exp $
 
 #if !defined(__GLASGOW_HASKELL__)

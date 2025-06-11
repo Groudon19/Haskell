@@ -2,7 +2,6 @@ module Ri where
 
 type Id = String
 
-
 data Inicio
      = Expr Expr
      | ExprL ExprL
@@ -20,6 +19,7 @@ data TConst
      = CDouble Double
      | CInt Int
      deriving Show
+
 data Expr
      = Add Expr Expr
      | Sub Expr Expr 

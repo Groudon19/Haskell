@@ -5,9 +5,16 @@ data Token
   | NUMDOUBLE Double
   | LIT String
   | ID String
+
   | DOUBLE
   | INT
   | STRING
+  | VOID
+
+  | TPRINT
+  | TREAD
+  | RETURN
+  
   | ADD
   | SUB
   | MUL
@@ -25,5 +32,6 @@ data Token
   | TNOT
   | COMMA
   | TEND --;
+  | TATRIB
   deriving (Eq, Show)
   

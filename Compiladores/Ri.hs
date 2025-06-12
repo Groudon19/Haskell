@@ -6,6 +6,7 @@ data Inicio
      = Expr Expr
      | ExprL ExprL
      | Declaracoes [Var]
+     | Comando Comando -- teste
      deriving Show
 
 data Tipo
@@ -49,4 +50,12 @@ data ExprL
 
 data Var
      = Id :#: (Tipo, Int)
+     deriving Show
+
+data Comando
+     = Ret (Maybe Expr)
+     | Atrib Id Expr
+     | Imp Expr
+     | Leitura Id
+     | Proc Id [Expr]
      deriving Show

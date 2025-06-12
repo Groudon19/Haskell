@@ -29,9 +29,14 @@ import qualified Lex as L
   '!' {TNOT}
   ',' {COMMA}
   ';' {TEND}
+  '=' {TATRIB}
   'int' {INT}
   'double' {DOUBLE}
   'string' {STRING}
+  'void' {VOID}
+  'return' {RETURN}
+  'print'  {TPRINT}
+  'read'   {TREAD}
   NumDouble {NUMDOUBLE $$}
   NumInt {NUMINT $$}
   Id {ID $$}
@@ -44,10 +49,53 @@ import qualified Lex as L
 Inicio: Expr                {Expr $1}
       | ExprL               {ExprL $1}
       | Declaracoes         {Declaracoes $1}
+      | Comando             {Comando $1}
+
+--Tipo
+TipoRetorno: Tipo              {$1}
+           | 'void'            {TVoid}
+
+--[Var]
+DeclParametros: DeclParametros ',' Parametro {$1 ++ [$3]}
+              | Parametro                    {[$1]}
+
+-- Var
+Parametro: Tipo Id          {$2 :#: ($1, 0)}
 
 -- [Var]
 Declaracoes: Declaracoes Declaracao {$1 ++ $2}
            | Declaracao       {$1}
+
+-- Comando
+Comando: CmdAtrib             {$1}
+       | CmdEscrita           {$1}
+       | CmdLeitura           {$1}
+       | ChamadaProc          {$1}  
+       | Retorno              {$1}
+
+-- Comando
+Retorno: 'return' Expr ';'    {Ret (Just $2)}
+       | 'return' ';'         {Ret Nothing}
+
+-- Comando
+CmdAtrib: Id '=' Expr ';'      {Atrib $1 $3}
+
+-- Comando
+CmdEscrita: 'print' '(' Expr ')' ';'  {Imp $3}
+
+-- Comando
+CmdLeitura: 'read' '(' Id ')' ';'  {Leitura $3}
+
+-- Comando
+ChamadaProc: ChamadaFuncao ';' {$1}
+
+-- Comando
+ChamadaFuncao: Id '(' ListaParametros ')' {Proc $1 $3}
+             | Id '(' ')'                 {Proc $1 []}
+
+-- [Expr]
+ListaParametros: ListaParametros ',' Expr {$1 ++ [$3]}
+               | Expr                     {[$1]}
 
 -- [Var]
 Declaracao: Tipo ListaId ';' {map (\x -> x:#:($1, 0)) $2}

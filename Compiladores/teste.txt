@@ -1,3 +1,7 @@
 {
-    
+    if(n == 2){
+        return fat(n);
+    }else{
+        return 2;
+    }
 }

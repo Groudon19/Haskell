@@ -37,6 +37,8 @@ import qualified Lex as L
   'string' {STRING}
   'void' {VOID}
   'return' {RETURN}
+  'if' {TIF}
+  'else' {TELSE}
   'print'  {TPRINT}
   'read'   {TREAD}
   NumDouble {NUMDOUBLE $$}
@@ -76,7 +78,8 @@ Declaracoes: Declaracoes Declaracao {$1 ++ $2}
            | Declaracao       {$1}
 
 -- Comando
-Comando: CmdAtrib             {$1}
+Comando: CmdSe                {$1}
+       | CmdAtrib             {$1}
        | CmdEscrita           {$1}
        | CmdLeitura           {$1}
        | ChamadaProc          {$1}  
@@ -85,6 +88,10 @@ Comando: CmdAtrib             {$1}
 -- Comando
 Retorno: 'return' Expr ';'    {Ret (Just $2)}
        | 'return' ';'         {Ret Nothing}
+
+-- Comando
+CmdSe: 'if' '(' ExprL ')' Bloco 'else' Bloco {If $3 $5 $7}
+     | 'if' '(' ExprL ')' Bloco              {If $3 $5 []}
 
 -- Comando
 CmdAtrib: Id '=' Expr ';'      {Atrib $1 $3}

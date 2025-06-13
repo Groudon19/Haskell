@@ -56,6 +56,7 @@ data Var
 type Bloco = [Comando]
 data Comando
      = Ret (Maybe Expr)
+     | If ExprL Bloco Bloco
      | Atrib Id Expr
      | Imp Expr
      | Leitura Id

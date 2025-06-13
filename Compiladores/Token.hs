@@ -11,6 +11,8 @@ data Token
   | STRING
   | VOID
 
+  | TIF
+  | TELSE
   | TPRINT
   | TREAD
   | RETURN

@@ -51,11 +51,18 @@ import qualified Lex as L
 Inicio: Expr                {Expr $1}
       | ExprL               {ExprL $1}
       | Declaracoes         {Declaracoes $1}
-      | Comando             {Comando $1}
+      | Bloco               {Bloco $1}
 
 --Tipo
 TipoRetorno: Tipo              {$1}
            | 'void'            {TVoid}
+
+-- [Comando]
+Bloco: '{' ListaCmd '}'  {$2}
+
+-- [Comando]
+ListaCmd: ListaCmd Comando {$1 ++ [$2]}
+        | Comando          {[$1]}
 
 --[Var]
 DeclParametros: DeclParametros ',' Parametro {$1 ++ [$3]}

@@ -5,15 +5,27 @@ data Token
   | NUMDOUBLE Double
   | LIT String
   | ID String
+
   | DOUBLE
   | INT
   | STRING
+  | VOID
+
+  | TIF
+  | TELSE
+  | TWHILE
+  | TPRINT
+  | TREAD
+  | RETURN
+  
   | ADD
   | SUB
   | MUL
   | DIV
   | LPAR
   | RPAR
+  | LBRC
+  | RBRC
   | TEQ
   | TDIF
   | TLE
@@ -25,5 +37,6 @@ data Token
   | TNOT
   | COMMA
   | TEND --;
+  | TATRIB
   deriving (Eq, Show)
   

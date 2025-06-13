@@ -6,6 +6,8 @@ data Inicio
      = Expr Expr
      | ExprL ExprL
      | Declaracoes [Var]
+     | Funcao [(Funcao, ([Var], [Comando]))]
+     | Bloco Bloco
      deriving Show
 
 data Tipo
@@ -28,6 +30,7 @@ data Expr
      | Neg Expr 
      | Const TConst
      | IdVar String
+     | Chamada Id [Expr]
      | Lit String
      deriving Show
 
@@ -49,4 +52,20 @@ data ExprL
 
 data Var
      = Id :#: (Tipo, Int)
+     deriving Show
+
+data Funcao
+     = Id :->: ([Var], Tipo)
+     deriving Show
+
+type Bloco = [Comando]
+
+data Comando
+     = Ret (Maybe Expr)
+     | If ExprL Bloco Bloco
+     | While ExprL Bloco
+     | Atrib Id Expr
+     | Imp Expr
+     | Leitura Id
+     | Proc Id [Expr]
      deriving Show

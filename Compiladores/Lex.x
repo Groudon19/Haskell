@@ -32,12 +32,23 @@ tokens :-
 <0> "/" {\s -> DIV}  
 <0> "(" {\s -> LPAR}  
 <0> ")" {\s -> RPAR}
+<0> "{" {\s -> LBRC}
+<0> "}" {\s -> RBRC}
 <0> "," {\s -> COMMA}
 <0> ";" {\s -> TEND}
+<0> "=" {\s -> TATRIB}
 
 <0> "int" {\s -> INT}
 <0> "double" {\s -> DOUBLE}
 <0> "string" {\s -> STRING}
+<0> "void" {\s -> VOID}
+
+<0> "return" {\s -> RETURN}
+<0> "if" {\s -> TIF}
+<0> "else" {\s -> TELSE}
+<0> "while" {\s -> TWHILE}
+<0> "print" {\s -> TPRINT}
+<0> "read" {\s -> TREAD}
 
 <0> @numDouble{\s -> NUMDOUBLE (read s)}
 <0> @numInt{\s -> NUMINT (read s)}

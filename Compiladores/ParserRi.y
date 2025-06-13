@@ -32,19 +32,13 @@ import qualified Lex as L
   ',' {COMMA}
   ';' {TEND}
   '=' {TATRIB}
-
   'int' {INT}
   'double' {DOUBLE}
   'string' {STRING}
   'void' {VOID}
-
   'return' {RETURN}
-  'if' {TIF}
-  'else' {TELSE}
-  'while' {TWHILE}
   'print'  {TPRINT}
   'read'   {TREAD}
-
   NumDouble {NUMDOUBLE $$}
   NumInt {NUMINT $$}
   Id {ID $$}
@@ -57,8 +51,7 @@ import qualified Lex as L
 Inicio: Expr                {Expr $1}
       | ExprL               {ExprL $1}
       | Declaracoes         {Declaracoes $1}
-      | ListaFuncoes        {Funcao $1}
-      | Bloco               {Bloco $1}
+      | Comando             {Comando $1}
 
 --Tipo
 TipoRetorno: Tipo              {$1}
@@ -75,29 +68,8 @@ Parametro: Tipo Id          {$2 :#: ($1, 0)}
 Declaracoes: Declaracoes Declaracao {$1 ++ $2}
            | Declaracao       {$1}
 
--- [(Funcao, ([Var], [Comando]))]
-ListaFuncoes: ListaFuncoes Funcao {$1 ++ [$2]}
-            | Funcao              {[$1]}
-
--- (Funcao, ([Var], [Comando]))
-Funcao: TipoRetorno Id '(' DeclParametros ')' BlocoPrincipal {($2 :->: ($4, $1), $6)}
-      | TipoRetorno Id '(' ')' BlocoPrincipal                {($2 :->: ([], $1), $5)}
-
--- ([Var], [Comando])
-BlocoPrincipal: '{' Declaracoes ListaCmd '}' {($2, $3)}
-              | '{' ListaCmd '}'             {([], $2)}
-
--- [Comando]
-Bloco: '{' ListaCmd '}'       {$2}
-
--- [Comando]
-ListaCmd: ListaCmd Comando   {$1 ++ [$2]}
-        | Comando            {[$1]}
-
 -- Comando
-Comando: CmdSe                {$1}
-       | CmdEnquanto          {$1}
-       | CmdAtrib             {$1}
+Comando: CmdAtrib             {$1}
        | CmdEscrita           {$1}
        | CmdLeitura           {$1}
        | ChamadaProc          {$1}  
@@ -106,13 +78,6 @@ Comando: CmdSe                {$1}
 -- Comando
 Retorno: 'return' Expr ';'    {Ret (Just $2)}
        | 'return' ';'         {Ret Nothing}
-
--- Comando
-CmdSe: 'if' '(' ExprL ')' Bloco              {If $3 $5 []}
-     | 'if' '(' ExprL ')' Bloco 'else' Bloco {If $3 $5 $7}
-
--- Comando
-CmdEnquanto: 'while' '(' ExprL ')' Bloco {While $3 $5}
 
 -- Comando
 CmdAtrib: Id '=' Expr ';'      {Atrib $1 $3}

@@ -44,9 +44,6 @@ tokens :-
 <0> "void" {\s -> VOID}
 
 <0> "return" {\s -> RETURN}
-<0> "if" {\s -> TIF}
-<0> "else" {\s -> TELSE}
-<0> "while" {\s -> TWHILE}
 <0> "print" {\s -> TPRINT}
 <0> "read" {\s -> TREAD}
 

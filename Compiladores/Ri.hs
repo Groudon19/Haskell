@@ -6,8 +6,7 @@ data Inicio
      = Expr Expr
      | ExprL ExprL
      | Declaracoes [Var]
-     | Funcao [(Funcao, ([Var], [Comando]))]
-     | Bloco Bloco
+     | Comando Comando -- teste
      deriving Show
 
 data Tipo
@@ -54,16 +53,8 @@ data Var
      = Id :#: (Tipo, Int)
      deriving Show
 
-data Funcao
-     = Id :->: ([Var], Tipo)
-     deriving Show
-
-type Bloco = [Comando]
-
 data Comando
      = Ret (Maybe Expr)
-     | If ExprL Bloco Bloco
-     | While ExprL Bloco
      | Atrib Id Expr
      | Imp Expr
      | Leitura Id

@@ -7,6 +7,7 @@ data Inicio
      | ExprL ExprL
      | Declaracoes [Var]
      | Bloco Bloco
+     | BlocoPrincipal ([Var], [Comando])
      deriving Show
 
 data Tipo

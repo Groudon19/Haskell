@@ -9,6 +9,7 @@ data Inicio
      | Bloco Bloco
      | BlocoPrincipal ([Var], [Comando])
      | Funcao (Funcao, ([Var], [Comando]))
+--     | ListaFuncoes [(Funcao, ([Var], [Comando]))] -- teste
      deriving Show
 
 data Tipo

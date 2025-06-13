@@ -1,7 +1,12 @@
 int soma(int a, int b){
-    if(0 == 0){
-
+    string frase;
+    if(a == b){
+        print(frase);
     }else{
         print(a);
     }
+}
+
+void showGraph(string graph){
+    print(graph);
 }

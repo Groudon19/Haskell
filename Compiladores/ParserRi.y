@@ -50,11 +50,19 @@ import qualified Lex as L
 
 %%
 
+-- TODO: Lidar com blocos vazios
+-- TODO: Declarações após comandos
+-- TODO: for (ele vai pedir ctz)
+
 -- Inicio
 Inicio: Expr                {Expr $1}
       | ExprL               {ExprL $1}
-      | Declaracoes         {Declaracoes $1}
       | BlocoPrincipal      {BlocoPrincipal $1}
+      | Funcao              {Funcao $1}
+
+-- (Funcao, ([Var], [Comando]))
+Funcao: TipoRetorno Id '(' DeclParametros ')' BlocoPrincipal {($2 :->: ($4, $1), $6)}
+      | TipoRetorno Id '(' ')' BlocoPrincipal                {($2 :->: ([], $1), $5)}
 
 -- ([Var], [Comando])
 BlocoPrincipal: '{' Declaracoes ListaCmd '}' {($2, $3)}

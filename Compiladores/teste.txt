@@ -1,6 +1,7 @@
-{
-    int x;
-    if(2==2){
-        return;
+int soma(int a, int b){
+    if(0 == 0){
+
+    }else{
+        print(a);
     }
 }

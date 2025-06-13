@@ -8,6 +8,7 @@ data Inicio
      | Declaracoes [Var]
      | Bloco Bloco
      | BlocoPrincipal ([Var], [Comando])
+     | Funcao (Funcao, ([Var], [Comando]))
      deriving Show
 
 data Tipo
@@ -52,6 +53,10 @@ data ExprL
 
 data Var
      = Id :#: (Tipo, Int)
+     deriving Show
+
+data Funcao
+     = Id :->: ([Var], Tipo)
      deriving Show
 
 type Bloco = [Comando]

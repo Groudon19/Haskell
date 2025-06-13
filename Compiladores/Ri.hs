@@ -57,6 +57,7 @@ type Bloco = [Comando]
 data Comando
      = Ret (Maybe Expr)
      | If ExprL Bloco Bloco
+     | While ExprL Bloco
      | Atrib Id Expr
      | Imp Expr
      | Leitura Id

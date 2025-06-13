@@ -13,6 +13,7 @@ data Token
 
   | TIF
   | TELSE
+  | TWHILE
   | TPRINT
   | TREAD
   | RETURN

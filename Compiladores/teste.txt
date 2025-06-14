@@ -1,12 +1,1 @@
-int soma(int a, int b){
-    string frase;
-    if(a == b){
-        print(frase);
-    }else{
-        print(a);
-    }
-}
-
-void showGraph(string graph){
-    print(graph);
-}
+int dobro(int n){return n*2;} int somaDobros(int a, int b){int dobroA, dobroB; dobroA = dobro(a); dobroB = dobro(b); return dobroA + dobroB;} {int x, resultado; x = 5; resultado = somaDobros(x,10); print(resultado);}

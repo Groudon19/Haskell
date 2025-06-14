@@ -54,20 +54,17 @@ import qualified Lex as L
 -- TODO: Declarações após comandos
 -- TODO: for (ele vai pedir ctz)
 
--- Inicio
-Inicio: Expr                {Expr $1}
-      | ExprL               {ExprL $1}
-      | BlocoPrincipal      {BlocoPrincipal $1}
-      | Funcao              {Funcao $1}
---      | ListaFuncoes        {ListaFuncoes $1} -- teste
+-- Programa
+Programa: ListaFuncoes BlocoPrincipal {Prog (fst (unzip $1)) (snd (unzip $1)) (fst $2) (snd $2)}
+        | BlocoPrincipal              {Prog [] [] (fst $1) (snd $1)}
 
--- [Funcao]
+-- [(Funcao, (Id ,[Var], Bloco))]
 ListaFuncoes: ListaFuncoes Funcao {$1 ++ [$2]}
             | Funcao              {[$1]}
 
--- (Funcao, ([Var], [Comando]))
-Funcao: TipoRetorno Id '(' DeclParametros ')' BlocoPrincipal {($2 :->: ($4, $1), $6)}
-      | TipoRetorno Id '(' ')' BlocoPrincipal                {($2 :->: ([], $1), $5)}
+-- (Funcao, (Id ,[Var], Bloco))
+Funcao: TipoRetorno Id '(' DeclParametros ')' BlocoPrincipal {($2 :->: ($4, $1), ($2, $4 ++ fst $6, snd $6))}
+      | TipoRetorno Id '(' ')' BlocoPrincipal                {($2 :->: ([], $1), ($2, fst $5, snd $5))}
 
 -- ([Var], [Comando])
 BlocoPrincipal: '{' Declaracoes ListaCmd '}' {($2, $3)}
@@ -199,8 +196,4 @@ main = do s <- readFile "teste.txt"
 manual = do putStr "Expressão:"
             s <- getLine
             print (calc (L.alexScanTokens s))
-      --     case (calc (L.alexScanTokens s)) of
-      --       Expr r  -> print r
-      --       ExprL l -> print l
-      --       Declaracoes d -> print d
 }

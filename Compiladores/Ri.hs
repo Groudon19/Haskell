@@ -2,16 +2,6 @@ module Ri where
 
 type Id = String
 
-data Inicio
-     = Expr Expr
-     | ExprL ExprL
-     | Declaracoes [Var]
-     | Bloco Bloco
-     | BlocoPrincipal ([Var], [Comando])
-     | Funcao (Funcao, ([Var], [Comando]))
---     | ListaFuncoes [(Funcao, ([Var], [Comando]))] -- teste
-     deriving Show
-
 data Tipo
      = TDouble
      | TInt
@@ -58,6 +48,11 @@ data Var
 
 data Funcao
      = Id :->: ([Var], Tipo)
+     deriving Show
+
+-- Prog [Todas as funcoes] [(Id da funcao, Parametros da funcao ++ Declaracoes da funcao, Bloco da funcao)] [Declaracoes do bloco principal] Bloco principal
+data Programa 
+     = Prog [Funcao] [(Id, [Var], Bloco)] [Var] Bloco
      deriving Show
 
 type Bloco = [Comando]

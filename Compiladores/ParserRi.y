@@ -175,11 +175,13 @@ Term  : Term '*' Factor     {Mul $1 $3}
 -- Expr
 Factor: TConst                      {Const $1}
       | '(' Expr ')'                {$2}  
-      | '-' Factor                  {Neg $2}
+      | '-' TConst                  {Neg (Const $2)}
       | Id                          {IdVar $1}
       | Id '(' ListaParametros ')'  {Chamada $1 $3}
       | Id '(' ')'                  {Chamada $1 []}
       | Literal                     {Lit $1}
+      | '(' 'int' ')' Factor        {DoubleInt $4}
+      | '(' 'double' ')' Factor     {IntDouble $4}
 
 -- TConst
 TConst: NumDouble {CDouble $1}

@@ -12,7 +12,7 @@ data Tipo
 data TConst
      = CDouble Double
      | CInt Int
-     deriving Show
+     deriving (Show, Eq)
 
 data Expr
      = Add Expr Expr
@@ -24,7 +24,9 @@ data Expr
      | IdVar String
      | Chamada Id [Expr]
      | Lit String
-     deriving Show
+     | IntDouble Expr
+     | DoubleInt Expr
+     deriving (Show, Eq)
 
 data ExprR 
      = Req Expr Expr

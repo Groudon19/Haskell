@@ -36,10 +36,21 @@ verificaDiv op e1 e2 t1 t2 | e2 /= Const(CInt 0) && e2 /= Const(CDouble 0.0) && 
                                                        show e2 ++ " nao pode estar no denominador\n"
                                             return (t2, op e1 e2)
 
--- tfun = tabela de tipos de funcoes e tvar = tabela de tipos de variaveis
+tvarConsulta :: [Var] -> Id -> Result Tipo
+tvarConsulta [] nome = do errorMsg $ "Variavel '" ++ nome ++ "' nao encontrada\n"
+                          return TVoid
+tvarConsulta tvar@(id :#: (tipo, valor):xs) nome = if id == nome then return tipo else tvarConsulta xs nome                  
 
-tExpr :: t1 -> t2 -> Expr -> Result (Tipo, Expr)
+-- tfun = tabela de tipos de funcoes e tvar = tabela de tipos de variaveis
+-- tvar: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
+-- tfun: []
+
+tExpr :: [Funcao] -> [Var] -> Expr -> Result (Tipo, Expr)
 tExpr tfun tvar (Lit x) = return (TString, Lit x)
+
+tExpr tfun tvar (IdVar x) =  do t <- tvarConsulta tvar x
+                                return (t, IdVar x)
+
 tExpr tfun tvar (Const (CInt x)) = return (TInt, Const(CInt x))
 tExpr tfun tvar (Const (CDouble x)) = return (TDouble, Const(CDouble x))
 

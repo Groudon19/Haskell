@@ -44,6 +44,7 @@ data ExprL
      | Rel ExprR
      deriving Show
 
+-- Var = Nome da variável :#: (Tipo da variável, Posição na memória (pilha))
 data Var
      = Id :#: (Tipo, Int)
      deriving Show

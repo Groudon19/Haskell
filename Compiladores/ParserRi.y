@@ -180,8 +180,8 @@ Factor: TConst                      {Const $1}
       | Id '(' ListaParametros ')'  {Chamada $1 $3}
       | Id '(' ')'                  {Chamada $1 []}
       | Literal                     {Lit $1}
-      | '(' 'int' ')' Factor        {DoubleInt $4}
-      | '(' 'double' ')' Factor     {IntDouble $4}
+      | '(' 'int' ')' TConst        {DoubleInt (Const $4)}
+      | '(' 'double' ')' TConst     {IntDouble (Const $4)}
 
 -- TConst
 TConst: NumDouble {CDouble $1}

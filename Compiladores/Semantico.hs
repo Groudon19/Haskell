@@ -54,7 +54,7 @@ verificaParametros tfun tvar [] [] = True
 verificaParametros tfun tvar [] _ = False
 verificaParametros tfun tvar _ [] = False
 verificaParametros tfun tvar parametros@(id :#: (tipo,valor):xs) variaveis@(y:ys) = case tExpr tfun tvar y of Result (_, _, (t, _)) -> (tipo == t) && verificaParametros tfun tvar xs ys
-  
+
 -- tfun = tabela de tipos de funcoes e tvar = tabela de tipos de variaveis
 -- tvar: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
 -- tfun: ["fat" :->: (["n" :#: (TInt, 0), "nome" :#: (TString, 0), "precisa" :#: (TDouble, 0)], TInt)]
@@ -107,3 +107,24 @@ tExpr tfun tvar (Div e1 e2) = do (t1, e1') <- tExpr tfun tvar e1
                                  (t2, e2') <- tExpr tfun tvar e2
                                  verificaDiv Div e1' e2' t1 t2
 
+tExprR tfun tvar (Req e1 e2) = tExpR tfun tvar Req e1 e2
+tExprR tfun tvar (Rdif e1 e2) = tExpR tfun tvar Rdif e1 e2
+tExprR tfun tvar (Rle e1 e2) = tExpR tfun tvar Rle e1 e2
+tExprR tfun tvar (Rge e1 e2) = tExpR tfun tvar Rge e1 e2
+tExprR tfun tvar (Rlt e1 e2) = tExpR tfun tvar Rlt e1 e2
+tExprR tfun tvar (Rgt e1 e2) = tExpR tfun tvar Rgt e1 e2
+
+tExpR tfun tvar op e1 e2 = do (t1, e1') <- tExpr tfun tvar e1
+                              (t2, e2') <- tExpr tfun tvar e2
+                              if t1 == t2 then return (op e1' e2')
+                              else case (t1, t2) of
+                                     (TString, _) -> do errorMsg $ "Nao da pra comparar String com " ++ show t2 ++ "\n"
+                                                        return (op e1' e2')
+                                     (_, TString) -> do errorMsg $ "Nao da pra comparar String com " ++ show t1 ++ "\n"
+                                                        return (op e1' e2')
+                                     (TInt, TDouble) -> do warningMsg $ "Realizando a coercao de " ++ show t1 ++ " para " ++ show t2 ++ " de " ++ show e1' ++ "\n"
+                                                           return (op (IntDouble e1') e2')
+                                     (TDouble, TInt) -> do warningMsg $ "Realizando a coercao de " ++ show t2 ++ " para " ++ show t1 ++ " de " ++ show e2' ++ "\n"
+                                                           return (op e1' (IntDouble e2'))
+                                     _ -> do errorMsg $ "Impossivel comparar "++ show t1 ++ " com " ++ show t2 ++ "\n"
+                                             return (op e1' e2')

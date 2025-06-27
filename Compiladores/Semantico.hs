@@ -46,14 +46,26 @@ tfunConsultaTipo [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada
                               return TVoid
 tfunConsultaTipo tfun@(id :->: (parametros, tipo):xs) nome = if id == nome then return tipo else tfunConsultaTipo xs nome
 
-tfunConsultaParametros :: [Funcao] -> Id -> [Var] -- Pode retornar Result?
-tfunConsultaParametros tfun@(id :->: (parametros, tipo):xs) nome = if id == nome then parametros else tfunConsultaParametros xs nome
+tfunConsultaParametros :: [Funcao] -> Id -> Result [Var] -- Pode retornar Result?
+tfunConsultaParametros [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada\n"
+                                    return []
+tfunConsultaParametros tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then return parametros else case tfunConsultaParametros xs nome
+                                                                                                                  of Result (False , _, variaveis) -> return variaveis
+                                                                                                                     Result (True, s, _) -> do errorMsg s
+                                                                                                                                               return []
 
-verificaParametros :: [Funcao] -> [Var] -> [Var] -> [Expr] -> Bool
-verificaParametros tfun tvar [] [] = True
-verificaParametros tfun tvar [] _ = False
-verificaParametros tfun tvar _ [] = False
-verificaParametros tfun tvar parametros@(id :#: (tipo,valor):xs) variaveis@(y:ys) = case tExpr tfun tvar y of Result (_, _, (t, _)) -> (tipo == t) && verificaParametros tfun tvar xs ys
+verificaParametros :: [Funcao] -> [Var] -> [Var] -> [Expr] -> Result Bool
+verificaParametros tfun tvar [] [] = return True
+verificaParametros tfun tvar [] _ = do errorMsg "Parametros demais na chamada\n"
+                                       return False
+verificaParametros tfun tvar _ [] = do errorMsg "Faltam parametros na chamada\n"
+                                       return False
+verificaParametros tfun tvar parametros@(id :#: (tipo,valor):xs) variaveis@(y:ys) = case tExpr tfun tvar y 
+                                                                                      of Result (_, _, (t, _)) -> if t == tipo then verificaParametros tfun tvar xs ys
+                                                                                                                  else do errorMsg $ "Erro de tipo na variavel '" ++ show y 
+                                                                                                                                     ++ "'. Tipo esperado: " ++ show tipo ++
+                                                                                                                                     " Tipo encontrado: " ++ show t ++ "\n"
+                                                                                                                          return False                                                                                                                                    
 
 -- tfun = tabela de tipos de funcoes e tvar = tabela de tipos de variaveis
 -- tvar: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
@@ -65,11 +77,14 @@ tExpr tfun tvar (Lit x) = return (TString, Lit x)
 tExpr tfun tvar (IdVar x) =  do t <- tvarConsultaTipo tvar x
                                 return (t, IdVar x)
 
-tExpr tfun tvar (Chamada id parametros) = do if verificaParametros tfun tvar (tfunConsultaParametros tfun id) parametros
-                                             then do t <- tfunConsultaTipo tfun id
-                                                     return (t, Chamada id parametros)
-                                             else do errorMsg $ "Erro no input da expressao: " ++ show (Chamada id parametros) ++ "\n"
-                                                     return (TVoid, Chamada id parametros)
+tExpr tfun tvar (Chamada id variaveis) = do case tfunConsultaParametros tfun id
+                                              of Result (False, _, parametros) -> do case verificaParametros tfun tvar parametros variaveis
+                                                                                       of Result (_, _, True) -> do t <- tfunConsultaTipo tfun id
+                                                                                                                    return (t, Chamada id variaveis)
+                                                                                          Result (_, s, _) -> do errorMsg $ "Erro na expressao: " ++ show (Chamada id variaveis) ++ s ++ " "
+                                                                                                                 return (TVoid, Chamada id variaveis)
+                                                 Result (True, s, _) -> do errorMsg s
+                                                                           return (TVoid, Chamada id variaveis)
 
 tExpr tfun tvar (Const (CInt x)) = return (TInt, Const (CInt x))
 tExpr tfun tvar (Const (CDouble x)) = return (TDouble, Const (CDouble x))
@@ -107,6 +122,7 @@ tExpr tfun tvar (Div e1 e2) = do (t1, e1') <- tExpr tfun tvar e1
                                  (t2, e2') <- tExpr tfun tvar e2
                                  verificaDiv Div e1' e2' t1 t2
 
+tExprR :: [Funcao] -> [Var] -> ExprR -> Result ExprR
 tExprR tfun tvar (Req e1 e2) = tExpR tfun tvar Req e1 e2
 tExprR tfun tvar (Rdif e1 e2) = tExpR tfun tvar Rdif e1 e2
 tExprR tfun tvar (Rle e1 e2) = tExpR tfun tvar Rle e1 e2
@@ -114,6 +130,7 @@ tExprR tfun tvar (Rge e1 e2) = tExpR tfun tvar Rge e1 e2
 tExprR tfun tvar (Rlt e1 e2) = tExpR tfun tvar Rlt e1 e2
 tExprR tfun tvar (Rgt e1 e2) = tExpR tfun tvar Rgt e1 e2
 
+tExpR :: [Funcao] -> [Var] -> (Expr -> Expr -> ExprR) -> Expr -> Expr -> Result ExprR
 tExpR tfun tvar op e1 e2 = do (t1, e1') <- tExpr tfun tvar e1
                               (t2, e2') <- tExpr tfun tvar e2
                               if t1 == t2 then return (op e1' e2')
@@ -128,3 +145,14 @@ tExpR tfun tvar op e1 e2 = do (t1, e1') <- tExpr tfun tvar e1
                                                            return (op e1' (IntDouble e2'))
                                      _ -> do errorMsg $ "Impossivel comparar "++ show t1 ++ " com " ++ show t2 ++ "\n"
                                              return (op e1' e2')
+
+tExprL :: [Funcao] -> [Var] -> ExprL -> Result ExprL
+tExprL tfun tvar (And e1 e2) = tExpL tfun tvar And e1 e2
+tExprL tfun tvar (Or e1 e2) = tExpL tfun tvar Or e1 e2
+tExprL tfun tvar (Not e1) = return Not <*> tExprL tfun tvar e1 -- Precisa do Not?
+tExprL tfun tvar (Rel e1) = return Rel <*> tExprR tfun tvar e1
+
+tExpL :: [Funcao] -> [Var] -> (ExprL -> ExprL -> ExprL) -> ExprL -> ExprL -> Result ExprL
+tExpL tfun tvar op e1 e2 = do e1' <- tExprL tfun tvar e1
+                              e2' <- tExprL tfun tvar e2
+                              return (op e1' e2')

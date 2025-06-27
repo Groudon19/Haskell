@@ -206,3 +206,11 @@ tCmd tfun tvar _ (Atrib id e) = do (t1, e1') <- tExpr tfun tvar (IdVar id)
                                           _ -> do errorMsg $ "A variavel " ++ show id ++ " espera o tipo " ++ show t1 ++
                                                              " mas o tipo da expressao " ++ show e ++ " eh " ++ show t2
                                                   return (Atrib id e)
+
+-- Verificação de tipos dos Blocos
+
+tBloco :: [Funcao] -> [Var] -> Funcao -> [Comando] -> Result [Comando] -- Bloco = [Comando]
+tBloco tfun tvar _ [] = return []
+tBloco tfun tvar funcao (cmd : listaComandos) = do listaComandos' <- tBloco tfun tvar funcao listaComandos
+                                                   cmd' <- tCmd tfun tvar funcao cmd
+                                                   return (cmd': listaComandos')

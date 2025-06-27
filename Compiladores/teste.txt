@@ -37,9 +37,7 @@ int somatorio (int n)
    
 
 void imprimir(string s, double r)
-{
-  int s;
-  
+{ 
   print (s);
   print (r);
   return 0;

@@ -185,3 +185,8 @@ tCmd tfun tvar funcao@(id :->: (parametros, tipo)) (Ret maybe) = do case maybe o
                                                                                    _ -> do errorMsg $ "A funcao deve retornar o tipo " ++ show tipo
                                                                                            return (Ret maybe)
 
+tCmd tfun tvar _ (Imp e) = do (t, e') <- tExpr tfun tvar e
+                              if t == TString then return (Imp e')
+                              else do errorMsg $ "Nao e possivel printar o tipo: " ++ show t
+                                      return (Imp e')                                                                                       
+

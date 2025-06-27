@@ -17,7 +17,7 @@ instance Monad Result where
 --  return a = Result (False, "", a)
   Result (b, s, a) >>= f = let Result (b', s', a') = f a in Result (b || b', s++s', a')
 
-errorMsg s = Result (True, "Erro:"++s++"\n", ())
+errorMsg s = Result (True, "Erro: "++s++"\n", ())
 
 warningMsg s = Result (False, "Advertencia:"++s++"\n", ())
 
@@ -30,6 +30,7 @@ coercao op e1 e2 t1 t2 | t1 == t2                    = return (t1, op e1 e2)
                                         return (t1, op e1 e2)
 
 -- Toda divisão resulta no tipo double e e2 não pode ser igual a 0
+verificaDiv :: (Expr -> Expr -> Expr) -> Expr -> Expr -> Tipo -> Tipo -> Result (Tipo, Expr)
 verificaDiv op e1 e2 t1 t2 | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0) && t1 /= TInt && t2 /= TInt = coercao Div e1 e2 t1 t2
                            | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0)                             = coercao Div (IntDouble e1) (IntDouble e2) t1 t2 -- Emite warning? Tem q fazer IntDouble da coercao
                            | otherwise = do errorMsg $ "Erro de input na expressao: " ++ show (op e1 e2) ++ ", " ++
@@ -46,7 +47,7 @@ tfunConsultaTipo [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada
                               return TVoid
 tfunConsultaTipo tfun@(id :->: (parametros, tipo):xs) nome = if id == nome then return tipo else tfunConsultaTipo xs nome
 
-tfunConsultaParametros :: [Funcao] -> Id -> Result [Var] -- Pode retornar Result?
+tfunConsultaParametros :: [Funcao] -> Id -> Result [Var]
 tfunConsultaParametros [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada\n"
                                     return []
 tfunConsultaParametros tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then return parametros else case tfunConsultaParametros xs nome
@@ -60,18 +61,20 @@ verificaParametros tfun tvar [] _ = do errorMsg "Parametros demais na chamada\n"
                                        return False
 verificaParametros tfun tvar _ [] = do errorMsg "Faltam parametros na chamada\n"
                                        return False
-verificaParametros tfun tvar parametros@(id :#: (tipo,valor):xs) variaveis@(y:ys) = case tExpr tfun tvar y 
+verificaParametros tfun tvar parametros@(id :#: (tipo,valor):xs) variaveis@(y:ys) = case tExpr tfun tvar y
                                                                                       of Result (False, _, (t, _)) -> if t == tipo then verificaParametros tfun tvar xs ys
-                                                                                                                      else do errorMsg $ "Erro de tipo na variavel '" ++ show y 
+                                                                                                                      else do errorMsg $ "Erro de tipo na variavel '" ++ show y
                                                                                                                                          ++ "'. Tipo esperado: " ++ show tipo ++
                                                                                                                                          " Tipo encontrado: " ++ show t ++ "\n"
                                                                                                                               return False
                                                                                          Result (True, s, _) -> do errorMsg s
-                                                                                                                   return False                                                                                                                             
+                                                                                                                   return False
 
 -- tfun = tabela de tipos de funcoes e tvar = tabela de tipos de variaveis
 -- tvar: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
 -- tfun: ["fat" :->: (["n" :#: (TInt, 0), "nome" :#: (TString, 0), "precisa" :#: (TDouble, 0)], TInt)]
+
+-- Verificação de tipos das Expr
 
 tExpr :: [Funcao] -> [Var] -> Expr -> Result (Tipo, Expr)
 tExpr tfun tvar (Lit x) = return (TString, Lit x)
@@ -124,6 +127,8 @@ tExpr tfun tvar (Div e1 e2) = do (t1, e1') <- tExpr tfun tvar e1
                                  (t2, e2') <- tExpr tfun tvar e2
                                  verificaDiv Div e1' e2' t1 t2
 
+-- Verificação de tipos das ExprR
+
 tExprR :: [Funcao] -> [Var] -> ExprR -> Result ExprR
 tExprR tfun tvar (Req e1 e2) = tExpR tfun tvar Req e1 e2
 tExprR tfun tvar (Rdif e1 e2) = tExpR tfun tvar Rdif e1 e2
@@ -148,6 +153,8 @@ tExpR tfun tvar op e1 e2 = do (t1, e1') <- tExpr tfun tvar e1
                                      _ -> do errorMsg $ "Impossivel comparar "++ show t1 ++ " com " ++ show t2 ++ "\n"
                                              return (op e1' e2')
 
+-- Verificação de tipos das ExprL
+
 tExprL :: [Funcao] -> [Var] -> ExprL -> Result ExprL
 tExprL tfun tvar (And e1 e2) = tExpL tfun tvar And e1 e2
 tExprL tfun tvar (Or e1 e2) = tExpL tfun tvar Or e1 e2
@@ -158,3 +165,23 @@ tExpL :: [Funcao] -> [Var] -> (ExprL -> ExprL -> ExprL) -> ExprL -> ExprL -> Res
 tExpL tfun tvar op e1 e2 = do e1' <- tExprL tfun tvar e1
                               e2' <- tExprL tfun tvar e2
                               return (op e1' e2')
+
+-- -- Verificação de tipos dos Comandos
+
+tCmd :: [Funcao] -> [Var] -> Funcao -> Comando -> Result Comando -- Como funciona para o bloco principal?
+tCmd tfun tvar funcao@(id :->: (parametros, tipo)) (Ret maybe) = do case maybe of
+                                                                      Just e -> do (t, e') <- tExpr tfun tvar e
+                                                                                   if tipo == t then return (Ret (Just e'))
+                                                                                   else case (tipo, t) of
+                                                                                          (TDouble, TInt) -> return (Ret (Just (IntDouble e')))
+                                                                                          (TInt, TDouble) -> do warningMsg $ "Convertendo " ++ show e' ++ " de "
+                                                                                                                             ++ show t ++ " para " ++ show tipo
+                                                                                                                return (Ret (Just (DoubleInt e')))
+                                                                                          _ -> do errorMsg $ "Tipo da funcao: " ++ show tipo ++
+                                                                                                             " Tipo do retorno: " ++ show t
+                                                                                                  return (Ret maybe)
+                                                                      Nothing -> case tipo of 
+                                                                                   TVoid -> return (Ret maybe)
+                                                                                   _ -> do errorMsg $ "A funcao deve retornar o tipo " ++ show tipo
+                                                                                           return (Ret maybe)
+

@@ -61,11 +61,13 @@ verificaParametros tfun tvar [] _ = do errorMsg "Parametros demais na chamada\n"
 verificaParametros tfun tvar _ [] = do errorMsg "Faltam parametros na chamada\n"
                                        return False
 verificaParametros tfun tvar parametros@(id :#: (tipo,valor):xs) variaveis@(y:ys) = case tExpr tfun tvar y 
-                                                                                      of Result (_, _, (t, _)) -> if t == tipo then verificaParametros tfun tvar xs ys
-                                                                                                                  else do errorMsg $ "Erro de tipo na variavel '" ++ show y 
-                                                                                                                                     ++ "'. Tipo esperado: " ++ show tipo ++
-                                                                                                                                     " Tipo encontrado: " ++ show t ++ "\n"
-                                                                                                                          return False                                                                                                                                    
+                                                                                      of Result (False, _, (t, _)) -> if t == tipo then verificaParametros tfun tvar xs ys
+                                                                                                                      else do errorMsg $ "Erro de tipo na variavel '" ++ show y 
+                                                                                                                                         ++ "'. Tipo esperado: " ++ show tipo ++
+                                                                                                                                         " Tipo encontrado: " ++ show t ++ "\n"
+                                                                                                                              return False
+                                                                                         Result (True, s, _) -> do errorMsg s
+                                                                                                                   return False                                                                                                                             
 
 -- tfun = tabela de tipos de funcoes e tvar = tabela de tipos de variaveis
 -- tvar: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]

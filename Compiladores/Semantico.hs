@@ -207,6 +207,11 @@ tCmd tfun tvar _ (Atrib id e) = do (t1, e1') <- tExpr tfun tvar (IdVar id)
                                                              " mas o tipo da expressao " ++ show e ++ " eh " ++ show t2
                                                   return (Atrib id e)
 
+tCmd tfun tvar funcao (If eL b1 b2) = do eL' <- tExprL tfun tvar eL
+                                         b1' <- tBloco tfun tvar funcao b1
+                                         b2' <- tBloco tfun tvar funcao b2
+                                         return (If eL' b1' b2')                                                  
+
 -- Verificação de tipos dos Blocos
 
 tBloco :: [Funcao] -> [Var] -> Funcao -> [Comando] -> Result [Comando] -- Bloco = [Comando]

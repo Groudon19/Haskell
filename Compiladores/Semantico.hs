@@ -210,7 +210,11 @@ tCmd tfun tvar _ (Atrib id e) = do (t1, e1') <- tExpr tfun tvar (IdVar id)
 tCmd tfun tvar funcao (If eL b1 b2) = do eL' <- tExprL tfun tvar eL
                                          b1' <- tBloco tfun tvar funcao b1
                                          b2' <- tBloco tfun tvar funcao b2
-                                         return (If eL' b1' b2')                                                  
+                                         return (If eL' b1' b2')
+
+tCmd tfun tvar funcao (While eL b1) = do eL' <- tExprL tfun tvar eL
+                                         b1' <- tBloco tfun tvar funcao b1
+                                         return (While eL' b1')                                                                                           
 
 -- Verificação de tipos dos Blocos
 

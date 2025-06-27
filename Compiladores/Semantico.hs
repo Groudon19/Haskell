@@ -195,3 +195,14 @@ tCmd tfun tvar _ (Leitura e) = do case tExpr tfun tvar (IdVar e) of
                                     Result(True, s, (TVoid, IdVar x)) -> do errorMsg s
                                                                             return (Leitura x)
 
+tCmd tfun tvar _ (Atrib id e) = do (t1, e1') <- tExpr tfun tvar (IdVar id)
+                                   (t2, e2') <- tExpr tfun tvar e
+                                   if t1 == t2 then return (Atrib id e)
+                                   else case (t1, t2) of
+                                          (TDouble, TInt) -> return (Atrib id (IntDouble e2'))
+                                          (TInt, TDouble) -> do warningMsg $ "Convertendo " ++ show e2' ++ " de "
+                                                                             ++ show t2 ++ " para " ++ show t1
+                                                                return (Atrib id (DoubleInt e2'))
+                                          _ -> do errorMsg $ "A variavel " ++ show id ++ " espera o tipo " ++ show t1 ++
+                                                             " mas o tipo da expressao " ++ show e ++ " eh " ++ show t2
+                                                  return (Atrib id e)

@@ -42,6 +42,20 @@ tvarConsultaTipo [] nome = do errorMsg $ "Variavel '" ++ nome ++ "' nao encontra
                               return TVoid
 tvarConsultaTipo tvar@(id :#: (tipo, valor):xs) nome = if id == nome then return tipo else tvarConsultaTipo xs nome
 
+tvarConta :: Num a => [Var] -> Id -> a
+tvarConta [] nome = 0
+tvarConta tvar@(id :#: (tipo, valor):xs) nome = do if id == nome then 1 + tvarConta xs nome
+                                                   else tvarConta xs nome
+
+tvarVerificaDuplicatas :: [Var] -> Result [Var]
+tvarVerificaDuplicatas [] = return []
+tvarVerificaDuplicatas tvar@(id :#: (tipo, valor):xs) = if tvarConta tvar id == 1 then case tvarVerificaDuplicatas xs of
+                                                                                         Result (False, _, vars) -> return ((id :#: (tipo, valor)) : vars)
+                                                                                         Result (True, s, _) -> do errorMsg s
+                                                                                                                   return []
+                                     else do errorMsg $ "Variavel " ++ show id ++ " multiplamente declarada\n"
+                                             return []
+
 tfunConsultaTipo :: [Funcao] -> Id -> Result Tipo
 tfunConsultaTipo [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada\n"
                               return TVoid
@@ -55,6 +69,21 @@ tfunConsultaParametros tfun@(id :->: (parametros, tipo):xs) nome = do if id == n
                                                                                                                      Result (True, s, _) -> do errorMsg s
                                                                                                                                                return []
 
+tfunConsulta :: [Funcao] -> [Char] -> Result Funcao
+tfunConsulta [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada\n"
+                          return ("" :->: ([], TVoid))
+tfunConsulta tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then  return (id :->: (parametros, tipo)) 
+                                                            else case tfunConsulta xs nome of
+                                                                   Result (False, _, funcao) -> return funcao
+                                                                   Result (True, s, _) -> do errorMsg s
+                                                                                             return (id :->: (parametros, tipo))
+
+tfunConta :: Num a => [Funcao] -> Id -> a
+tfunConta [] nome = 0
+tfunConta tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then 1 + tfunConta xs nome
+                                                         else tfunConta xs nome
+
+-- Pode passar Double para um paramtros Int? e vice-versa
 verificaParametros :: [Funcao] -> [Var] -> [Var] -> [Expr] -> Result Bool
 verificaParametros tfun tvar [] [] = return True
 verificaParametros tfun tvar [] _ = do errorMsg "Parametros demais na chamada\n"
@@ -214,7 +243,16 @@ tCmd tfun tvar funcao (If eL b1 b2) = do eL' <- tExprL tfun tvar eL
 
 tCmd tfun tvar funcao (While eL b1) = do eL' <- tExprL tfun tvar eL
                                          b1' <- tBloco tfun tvar funcao b1
-                                         return (While eL' b1')                                                                                           
+                                         return (While eL' b1')
+
+tCmd tfun tvar funcao (Proc id variaveis) = do case tfunConsultaParametros tfun id of
+                                                 Result(False, _, parametros) -> do case verificaParametros tfun tvar parametros variaveis
+                                                                                      of Result (_, _, True) -> return (Proc id variaveis)
+                                                                                         Result (True, s, _) -> do errorMsg $ "Erro na expressao: " ++ show (Proc id variaveis) ++ s ++ " "
+                                                                                                                   return (Proc id variaveis)
+                                                 Result(True, s, _) -> do errorMsg s
+                                                                          return (Proc id variaveis)
+                                          
 
 -- Verificação de tipos dos Blocos
 
@@ -223,3 +261,14 @@ tBloco tfun tvar _ [] = return []
 tBloco tfun tvar funcao (cmd : listaComandos) = do listaComandos' <- tBloco tfun tvar funcao listaComandos
                                                    cmd' <- tCmd tfun tvar funcao cmd
                                                    return (cmd': listaComandos')
+
+-- Verificação de tipos das Funções
+
+tFuncao tfun funcao (id, vars, bloco) = do bloco' <- tBloco tfun vars funcao bloco
+                                           vars' <- tvarVerificaDuplicatas vars
+                                           if tfunConta tfun id == 1 then return (funcao, (id, vars', bloco'))
+                                           else if tfunConta tfun id == 0 then do errorMsg $ "Funcao " ++ show id ++ " nao declarada\n"
+                                                                                  return (funcao, (id, vars, bloco))
+                                                else do errorMsg $ "Funcao " ++ show id ++ " multiplamente declarada\n"
+                                                        return (funcao, (id, vars, bloco))
+

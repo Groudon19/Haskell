@@ -271,4 +271,8 @@ tFuncao tfun funcao (id, vars, bloco) = do bloco' <- tBloco tfun vars funcao blo
                                                                                   return (funcao, (id, vars, bloco))
                                                 else do errorMsg $ "Funcao " ++ show id ++ " multiplamente declarada\n"
                                                         return (funcao, (id, vars, bloco))
+tListaFuncao [] [] = return([], [])
+tListaFuncao tfun@(f:xs) listaf@((id, vars, bloco):ys) = do f' <- tFuncao tfun f (id, vars, bloco)
+                                                            listaf' <- tListaFuncao xs ys
+                                                            return (fst f' : fst listaf', snd f' : snd listaf')                                                        
 

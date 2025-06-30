@@ -276,3 +276,7 @@ tListaFuncao tfun@(f:xs) listaf@((id, vars, bloco):ys) = do f' <- tFuncao tfun f
                                                             listaf' <- tListaFuncao xs ys
                                                             return (fst f' : fst listaf', snd f' : snd listaf')                                                        
 
+tPrograma (Prog tfun escopo tvar bloco_principal) = do (tfun', escopo') <- tListaFuncao tfun escopo
+                                                       bloco_principal' <- tBloco tfun tvar ("main" :->: ([], TInt)) bloco_principal
+                                                       tvar' <- tvarVerificaDuplicatas tvar
+                                                       return (Prog tfun' escopo' tvar' bloco_principal')

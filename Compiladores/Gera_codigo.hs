@@ -16,8 +16,6 @@ genMainCab s l = return (".method public static main([Ljava/lang/String;)V" ++
                          "\n\t.limit locals " ++ show l ++ "\n\n")
 
 
-genExprL c tab fun v f (And e1 e2) = do {l1 <- novoLabel; e1' <- genExprL c tab fun l1 f e1; e2' <- genExprL c tab fun v f e2; return (e1'++l1++":\n"++e2')}
--- todo
 
 
 genExpr c tab fun (Const (CInt i)) = return (TInt, genInt i)
@@ -116,6 +114,16 @@ genRel t1 t2 label_v op = case (t1, t2) of
                               (TInt, TInt) -> "if_icmp" ++ op ++ " " ++ show label_v ++ "\n"
                               (TDouble, TDouble) -> "dcmpg\nif" ++ op ++ " " ++ show label_v ++ "\n"
                               -- _ -> "Erro na comparação: argumentos de tipos diferentes"
+genExprL c tab fun v f (And e1 e2) = do l1 <- novoLabel
+                                        e1' <- genExprL c tab fun l1 f e1
+                                        e2' <- genExprL c tab fun v f e2
+                                        return (e1'++l1++":\n"++e2')
+genExprL c tab fun v f (Or e1 e2) = do l1 <- novoLabel
+                                       e1' <- genExprL c tab fun v l1 e1
+                                       e2' <- genExprL c tab fun v f e2
+                                       return(e1' ++ l1 ++ ":\n" ++ e2')
+genExprL c tab fun v f (Rel e) = genExprR c tab fun v f e
+genExprL c tab fun v f (Not e) = genExprL c tab fun f v e
 
 -- genCmd c tab fun (While e b) = do {li <- novoLabel; lv <- novoLabel; lf <- novoLabel; e' <- genExprL c tab fun lv lf e; b' <- genBloco c tab fun b; return (li++":\n"++e'++lv++":\n"++b'++"\tgoto "++li++"\n"++lf++":\n")}
 -- -- todo

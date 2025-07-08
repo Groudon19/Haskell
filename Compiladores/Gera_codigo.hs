@@ -40,10 +40,10 @@ genCast c tab fun op e = do (t, e') <- genExpr c tab fun e
 genExprAux c tab fun op e1 e2 = do (t1, e1') <- genExpr c tab fun e1;
                                    (t2, e2') <- genExpr c tab fun e2;
                                    case op e1 e2 of
-                                    (Add e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "add")
-                                    (Sub e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "sub")
-                                    (Mul e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "mul")
-                                    (Div e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "div")
+                                    (Add e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "add\n")
+                                    (Sub e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "sub\n")
+                                    (Mul e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "mul\n")
+                                    (Div e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "div\n")
 
 genInt n | n <= 5 = "iconst " ++ show n ++ "\n"
          | n <= 127 = "bipush " ++ show n ++ "\n"
@@ -76,7 +76,7 @@ genCall c tab fun id lista_expr = do (t, call) <- verificaFun fun id
                                      return (t, lista_expr' ++ call)
 
 verificaFun [] _ = return (TVoid, "")
-verificaFun fun@(id :->: (parametros, tipo):xs) nome = if nome == id then return (tipo, "invokestatic " ++ nome ++ "(" ++  verificaTipos parametros ++ ")" ++ show tipo)
+verificaFun fun@(id :->: (parametros, tipo):xs) nome = if nome == id then return (tipo, "invokestatic " ++ nome ++ "(" ++  verificaTipos parametros ++ ")" ++ show tipo ++ "\n")
                                                        else verificaFun xs nome
 
 verificaTipos [] = ""
@@ -103,16 +103,16 @@ genExprR c tab fun v f (Rge e1 e2) = genExprRAux c tab fun v f Rge e1 e2
 genExprRAux c tab fun v f op e1 e2 = do (t1, e1') <- genExpr c tab fun e1
                                         (t2, e2') <- genExpr c tab fun e2
                                         case op e1 e2 of
-                                            (Req e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "eq" ++ "\tgoto " ++ show f ++ "\n")
-                                            (Rdif e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "ne" ++ "\tgoto " ++ show f ++ "\n")
-                                            (Rlt e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "lt" ++ "\tgoto " ++ show f ++ "\n")
-                                            (Rle e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "le" ++ "\tgoto " ++ show f ++ "\n")
-                                            (Rgt e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "gt" ++ "\tgoto " ++ show f ++ "\n")
-                                            (Rge e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "ge" ++ "\tgoto " ++ show f ++ "\n")
+                                            (Req e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "eq" ++ "\tgoto " ++ f ++ "\n")
+                                            (Rdif e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "ne" ++ "\tgoto " ++ f ++ "\n")
+                                            (Rlt e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "lt" ++ "\tgoto " ++ f ++ "\n")
+                                            (Rle e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "le" ++ "\tgoto " ++ f ++ "\n")
+                                            (Rgt e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "gt" ++ "\tgoto " ++ f ++ "\n")
+                                            (Rge e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "ge" ++ "\tgoto " ++ f ++ "\n")
 
 genRel t1 t2 label_v op = case (t1, t2) of
-                              (TInt, TInt) -> "if_icmp" ++ op ++ " " ++ show label_v ++ "\n"
-                              (TDouble, TDouble) -> "dcmpg\nif" ++ op ++ " " ++ show label_v ++ "\n"
+                              (TInt, TInt) -> "if_icmp" ++ op ++ " " ++ label_v ++ "\n"
+                              (TDouble, TDouble) -> "dcmpg\nif" ++ op ++ " " ++ label_v ++ "\n"
                               -- _ -> "Erro na comparação: argumentos de tipos diferentes"
 genExprL c tab fun v f (And e1 e2) = do l1 <- novoLabel
                                         e1' <- genExprL c tab fun l1 f e1
@@ -125,13 +125,15 @@ genExprL c tab fun v f (Or e1 e2) = do l1 <- novoLabel
 genExprL c tab fun v f (Rel e) = genExprR c tab fun v f e
 genExprL c tab fun v f (Not e) = genExprL c tab fun f v e
 
--- genBloco 
+genBloco _ _ _ [] = return ""
+genBloco c tab fun lista_comandos@(cmd:xs) = do cmd' <- genCmd c tab fun cmd
+                                                resto <- genBloco c tab fun xs
+                                                return (cmd' ++ resto)
 
--- genCmd c tab fun (While e b) = do {li <- novoLabel; lv <- novoLabel; lf <- novoLabel; e' <- genExprL c tab fun lv lf e; b' <- genBloco c tab fun b; return (li++":\n"++e'++lv++":\n"++b'++"\tgoto "++li++"\n"++lf++":\n")}
 genCmd c tab fun (Ret e) = case e of
-                               Nothing -> return (genTipoReturn c)
+                               Nothing -> return (genTipoReturn TVoid)
                                Just e -> do (t, e') <- genExpr c tab fun e
-                                            return (e' ++ genTipoReturn c)
+                                            return (e' ++ genTipoReturn t)
 genCmd c tab fun (Imp e) = do (t,e') <- genExpr c tab fun e;
                               (d,s) <- return (TVoid, "getstatic java/lang/System/out LJava/io/Printstream;\n");
                               (d,s) <- return (TVoid, s ++ e');
@@ -140,7 +142,27 @@ genCmd c tab fun (Imp e) = do (t,e') <- genExpr c tab fun e;
 genCmd c tab fun (Atrib id expr) = do (t, expr') <- genExpr c tab fun expr
                                       let (nome :#: (tipo, endereco)) = verificaTab tab id
                                       return (expr' ++ genStore t endereco)
-
+genCmd c tab fun (If e bloco []) = do lv <- novoLabel
+                                      lf <- novoLabel
+                                      e' <- genExprL c tab fun lv lf e
+                                      b' <- genBloco c tab fun bloco
+                                      return (e' ++ lv ++ ":\n" ++ b' ++ lf ++ ":\n")
+genCmd c tab fun (If e blocoThen blocoElse) = do lv <- novoLabel
+                                                 lf <- novoLabel
+                                                 lend <- novoLabel
+                                                 e' <- genExprL c tab fun lv lf e
+                                                 bThen' <- genBloco c tab fun blocoThen
+                                                 bElse' <- genBloco c tab fun blocoElse
+                                                 return (e' ++ lv ++ ":\n" ++ bThen' ++ "\tgoto " ++ lend ++ "\n" ++ lf ++ ":\n" ++ bElse' ++ "\tgoto " ++ lend ++ "\n" ++ lend ++ ":\n")  
+genCmd c tab fun (While e b) = do li <- novoLabel
+                                  lv <- novoLabel
+                                  lf <- novoLabel
+                                  e' <- genExprL c tab fun lv lf e
+                                  b' <- genBloco c tab fun b
+                                  return (li++":\n"++e'++lv++":\n"++b'++"\tgoto "++li++"\n"++lf++":\n")
+genCmd c tab fun (Proc id lista_expr) = do (tipo, lista_expr') <- genExpr c tab fun (Chamada id lista_expr)
+                                           let pop = if tipo /= TVoid then "pop\n" else "" -- O output de um proc nunca é utilizado, se for utilizado é uma chamada
+                                           return (lista_expr' ++ pop)
 
 genTipoReturn t = case t of
                       TInt -> "ireturn\n"

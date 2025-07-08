@@ -31,9 +31,10 @@ genExpr c tab fun (Add e1 e2) = genExprAux c tab fun Add e1 e2
 genExpr c tab fun (Sub e1 e2) = genExprAux c tab fun Sub e1 e2
 genExpr c tab fun (Mul e1 e2) = genExprAux c tab fun Mul e1 e2
 genExpr c tab fun (Div e1 e2) = genExprAux c tab fun Div e1 e2
+genExpr c tab fun (IdVar s) = return (verificaTab tab s)
+genExpr c tab fun (Chamada id lista_expr) = genCall c tab fun id lista_expr
 genExpr c tab fun (Neg e) = do (t, e') <- genExpr c tab fun e
                                return (t, e' ++ genOp t "neg")
-genExpr c tab fun (IdVar s) = return (verificaTab tab s)
 
 genCast c tab fun op e = do (t, e') <- genExpr c tab fun e
                             case op e of
@@ -74,9 +75,31 @@ genOp t op = case t of
                TDouble -> "d" ++ op
             --    _ -> "Erro na geracao de codigo: operacao " ++ show op ++ " nao suporta o tipo " ++ show t
 
+genCall c tab fun id lista_expr = do (t, call) <- verificaFun fun id
+                                     lista_expr' <- empilhaExpr c tab fun id lista_expr
+                                     return (t, lista_expr' ++ call)
+
+verificaFun [] _ = return (TVoid, "")
+verificaFun fun@(id :->: (parametros, tipo):xs) nome = if nome == id then return (tipo, "invokestatic " ++ nome ++ "(" ++  verificaTipos parametros ++ ")" ++ show tipo)
+                                                       else verificaFun xs nome
+
+verificaTipos [] = ""
+verificaTipos tab@(id :#: (tipo, endereco):xs) = genTipo tipo ++ verificaTipos xs
+
+genTipo t = case t of
+                TInt -> "I"
+                TDouble -> "D"
+                TString -> "Ljava/lang/String;"
+                TVoid -> "V"
+
+empilhaExpr _ _ _ _ [] = return ""
+empilhaExpr c tab fun id (expr:xs) = do (t, expr') <- genExpr c tab fun expr
+                                        resto <- empilhaExpr c tab fun id xs
+                                        return (expr' ++ resto)
+
 -- genCmd c tab fun (While e b) = do {li <- novoLabel; lv <- novoLabel; lf <- novoLabel; e' <- genExprL c tab fun lv lf e; b' <- genBloco c tab fun b; return (li++":\n"++e'++lv++":\n"++b'++"\tgoto "++li++"\n"++lf++":\n")}
 -- -- todo
 
 
--- tvar: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
+-- tab: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
 -- tfun: ["fat" :->: (["n" :#: (TInt, 0), "nome" :#: (TString, 0), "precisa" :#: (TDouble, 0)], TInt)]

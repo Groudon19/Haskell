@@ -192,8 +192,8 @@ TConst: NumDouble {CDouble $1}
 parseError :: [Token] -> a
 parseError s = error ("Parse error:" ++ show s)
 
-main = do s <- readFile "teste.txt"
-          print (calc (L.alexScanTokens s))
+-- main = do s <- readFile "teste.txt"
+--           print (calc (L.alexScanTokens s))
 
 manual = do putStr "Expressão:"
             s <- getLine

@@ -50,8 +50,8 @@ tokens :-
 <0> "print" {\s -> TPRINT}
 <0> "read" {\s -> TREAD}
 
-<0> @numDouble{\s -> NUMDOUBLE (read s)}
 <0> @numInt{\s -> NUMINT (read s)}
+<0> @numDouble{\s -> NUMDOUBLE (read s)}
 <0> @id{\s -> ID s}
 <0> @literal{\s -> LIT (init (tail s))}
 

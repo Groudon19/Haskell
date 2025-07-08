@@ -625,66 +625,66 @@ alex_base = Data.Array.listArray (0 :: Int, 82)
   , 970
   , 1045
   , 1120
-  , -41
+  , -39
   , 1195
-  , 1207
-  , 1217
-  , 1292
-  , 1367
-  , 1442
-  , 1517
-  , 1592
-  , 1667
-  , 1742
-  , 1817
-  , 1892
-  , 1967
-  , 2042
-  , 2117
-  , 2192
-  , 2267
-  , 2342
+  , 1205
+  , 1215
+  , 1290
+  , 1365
+  , 1440
+  , 1515
+  , 1590
+  , 1665
+  , 1740
+  , 1815
+  , 1890
+  , 1965
+  , 2040
+  , 2115
+  , 2190
+  , 2265
+  , 2340
   , 0
-  , 2455
-  , 2520
+  , 2453
+  , 2518
   , 0
-  , 2584
-  , 2697
-  , 2943
-  , 3189
-  , 0
-  , 0
-  , 2451
-  , 2939
-  , 3185
-  , 3397
-  , 3472
-  , 3547
-  , 3622
-  , 3697
-  , 3772
-  , 3847
-  , -107
-  , 3842
-  , 3970
-  , 4226
-  , 2458
+  , 2582
+  , 2695
+  , 2941
+  , 3187
   , 0
   , 0
+  , 2449
+  , 2937
+  , 3183
+  , 3395
+  , 3470
+  , 3545
+  , 3620
+  , 3695
+  , 3770
+  , 3845
+  , -116
+  , 3840
+  , 3968
+  , 4224
+  , 2456
   , 0
   , 0
-  , -43
-  , 4306
-  , 4381
+  , 0
+  , 0
   , -42
+  , 4304
+  , 4379
+  , -41
   , 0
-  , -18
+  , -17
   , 0
   , 0
   , 0
   , 0
   , 0
-  , -40
+  , -38
   , 0
   , 0
   , 0
@@ -694,7 +694,7 @@ alex_base = Data.Array.listArray (0 :: Int, 82)
   ]
 
 alex_table :: Data.Array.Array Int Int
-alex_table = Data.Array.listArray (0 :: Int, 4636)
+alex_table = Data.Array.listArray (0 :: Int, 4634)
   [ 0
   , 60
   , 60
@@ -703,22 +703,22 @@ alex_table = Data.Array.listArray (0 :: Int, 4636)
   , 60
   , 61
   , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
   , 71
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
   , 63
   , 64
   , 69
+  , 0
   , 62
-  , 0
-  , 0
   , 60
   , 72
   , 43
@@ -735,16 +735,16 @@ alex_table = Data.Array.listArray (0 :: Int, 4636)
   , 74
   , 0
   , 76
-  , 19
-  , 19
-  , 19
-  , 19
-  , 19
-  , 19
-  , 19
-  , 19
-  , 19
-  , 19
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
   , 0
   , 82
   , 65
@@ -1938,18 +1938,16 @@ alex_table = Data.Array.listArray (0 :: Int, 4636)
   , 35
   , 35
   , 35
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 18
-  , 17
-  , 0
+  , 19
+  , 19
+  , 19
+  , 19
+  , 19
+  , 19
+  , 19
+  , 19
+  , 19
+  , 19
   , 19
   , 19
   , 19
@@ -5335,7 +5333,7 @@ alex_table = Data.Array.listArray (0 :: Int, 4636)
   ]
 
 alex_check :: Data.Array.Array Int Int
-alex_check = Data.Array.listArray (0 :: Int, 4636)
+alex_check = Data.Array.listArray (0 :: Int, 4634)
   [ -1
   , 9
   , 10
@@ -5343,6 +5341,8 @@ alex_check = Data.Array.listArray (0 :: Int, 4636)
   , 12
   , 13
   , 61
+  , 46
+  , 124
   , 48
   , 49
   , 50
@@ -5353,13 +5353,11 @@ alex_check = Data.Array.listArray (0 :: Int, 4636)
   , 55
   , 56
   , 57
-  , 124
   , 61
   , 61
   , 38
+  , -1
   , 61
-  , -1
-  , -1
   , 32
   , 33
   , 34
@@ -6589,8 +6587,6 @@ alex_check = Data.Array.listArray (0 :: Int, 4636)
   , 55
   , 56
   , 57
-  , 46
-  , -1
   , 48
   , 49
   , 50
@@ -10080,8 +10076,8 @@ alex_accept = Data.Array.listArray (0 :: Int, 82)
   , AlexAcc 53
   , AlexAcc 52
   , AlexAcc 51
-  , AlexAccNone
   , AlexAcc 50
+  , AlexAccNone
   , AlexAcc 49
   , AlexAcc 48
   , AlexAcc 47
@@ -10166,7 +10162,7 @@ alex_actions = Data.Array.array (0 :: Int, 67)
   , (52,alex_action_33)
   , (51,alex_action_30)
   , (50,alex_action_31)
-  , (49,alex_action_31)
+  , (49,alex_action_32)
   , (48,alex_action_33)
   , (47,alex_action_33)
   , (46,alex_action_33)
@@ -10248,8 +10244,8 @@ alex_action_27 = \s -> TELSE
 alex_action_28 = \s -> TWHILE
 alex_action_29 = \s -> TPRINT
 alex_action_30 = \s -> TREAD
-alex_action_31 = \s -> NUMDOUBLE (read s)
-alex_action_32 = \s -> NUMINT (read s)
+alex_action_31 = \s -> NUMINT (read s)
+alex_action_32 = \s -> NUMDOUBLE (read s)
 alex_action_33 = \s -> ID s
 alex_action_34 = \s -> LIT (init (tail s))
 

@@ -31,13 +31,17 @@ coercao op e1 e2 t1 t2 | t1 == t2                    = return (t1, op e1 e2)
 
 -- Toda divisão resulta no tipo double e e2 não pode ser igual a 0
 verificaDiv :: (Expr -> Expr -> Expr) -> Expr -> Expr -> Tipo -> Tipo -> Result (Tipo, Expr)
-verificaDiv op e1 e2 t1 t2 | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0) && t1 /= TInt && t2 /= TInt = coercao Div e1 e2 t1 t2
-                           | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0)                             = coercao Div (IntDouble e1) (IntDouble e2) t1 t2 -- Emite warning? Tem q fazer IntDouble da coercao
+verificaDiv op e1 e2 t1 t2 | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0) && t1 /= TInt && t2 /= TInt       = coercao Div e1 e2 t1 t2
+                           | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0) && t1 == TDouble && t2 == TInt = do warningMsg $ "Convertendo " ++ show e2 ++ " de TInt para TDouble"
+                                                                                                                   coercao Div e1 (IntDouble e2) t1 TDouble
+                           | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0) && t1 == TInt && t2 == TDouble = do warningMsg $ "Convertendo " ++ show e1 ++ " de TInt para TDouble"
+                                                                                                                   coercao Div (IntDouble e1) e2 TDouble t2
+                           | e2 /= Const (CInt 0) && e2 /= Const (CDouble 0.0)                                   = do warningMsg $ "Convertendo " ++ show e1 ++ " e "++ show e2 ++ " de TInt para TDouble"
+                                                                                                                      coercao Div (IntDouble e1) (IntDouble e2) TDouble TDouble
                            | otherwise = do errorMsg $ "Erro de input na expressao: " ++ show (op e1 e2) ++ ", " ++
                                                        show e2 ++ " nao pode estar no denominador\n"
                                             return (t2, op e1 e2)
 
-tvarConsultaTipo :: [Var] -> Id -> Result Tipo
 tvarConsultaTipo [] nome = do errorMsg $ "Variavel '" ++ nome ++ "' nao encontrada\n"
                               return TVoid
 tvarConsultaTipo tvar@(id :#: (tipo, valor):xs) nome = if id == nome then return tipo else tvarConsultaTipo xs nome
@@ -72,13 +76,12 @@ tfunConsultaParametros tfun@(id :->: (parametros, tipo):xs) nome = do if id == n
 tfunConsulta :: [Funcao] -> [Char] -> Result Funcao
 tfunConsulta [] nome = do errorMsg $ "Funcao '" ++ nome ++ "' nao encontrada\n"
                           return ("" :->: ([], TVoid))
-tfunConsulta tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then  return (id :->: (parametros, tipo)) 
+tfunConsulta tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then  return (id :->: (parametros, tipo))
                                                             else case tfunConsulta xs nome of
                                                                    Result (False, _, funcao) -> return funcao
                                                                    Result (True, s, _) -> do errorMsg s
                                                                                              return (id :->: (parametros, tipo))
 
-tfunConta :: Num a => [Funcao] -> Id -> a
 tfunConta [] nome = 0
 tfunConta tfun@(id :->: (parametros, tipo):xs) nome = do if id == nome then 1 + tfunConta xs nome
                                                          else tfunConta xs nome
@@ -129,15 +132,17 @@ tExpr tfun tvar (Neg (Const (CDouble 0))) = return (TDouble, Const (CDouble 0))
 tExpr tfun tvar (Neg (Const (CDouble x))) = return (TDouble, Neg (Const (CDouble x)))
 
 tExpr tfun tvar (IntDouble x) = do (t1, e1') <- tExpr tfun tvar x
-                                   if (t1 == TInt) then do return (TDouble, e1') -- IntDouble e1' parece virar um loop infinito
-                                   else if (t1 == TDouble) then do return (t1, e1')
+                                   if t1 == TInt then do warningMsg $ "Convertendo " ++ show x ++ "de TInt para TDouble"
+                                                         return (TDouble, e1')
+                                   else if t1 == TDouble then do warningMsg $ "Convertendo " ++ show x ++ "de TDouble para TInt"
+                                                                 return (t1, e1')
                                    else do errorMsg $ "Erro de tipos na expressao: " ++ show (IntDouble x) ++ ", " ++
                                                       show t1 ++ " nao pode virar double\n"
                                            return (t1, e1')
 
 tExpr tfun tvar (DoubleInt x) = do (t1, e1') <- tExpr tfun tvar x
-                                   if (t1 == TDouble) then do return (TInt, e1')
-                                   else if (t1 == TInt) then do return (t1, e1')
+                                   if t1 == TDouble then do return (TInt, e1')
+                                   else if t1 == TInt then do return (t1, e1')
                                    else do errorMsg $ "Erro de tipos na expressao: " ++ show (DoubleInt x) ++ ", " ++
                                                       show t1 ++ " nao pode virar int\n"
                                            return (t1, e1')
@@ -209,15 +214,13 @@ tCmd tfun tvar funcao@(id :->: (parametros, tipo)) (Ret maybe) = do case maybe o
                                                                                           _ -> do errorMsg $ "Tipo da funcao: " ++ show tipo ++
                                                                                                              " Tipo do retorno: " ++ show t
                                                                                                   return (Ret maybe)
-                                                                      Nothing -> case tipo of 
+                                                                      Nothing -> case tipo of
                                                                                    TVoid -> return (Ret maybe)
                                                                                    _ -> do errorMsg $ "A funcao deve retornar o tipo " ++ show tipo
                                                                                            return (Ret maybe)
 
 tCmd tfun tvar _ (Imp e) = do (t, e') <- tExpr tfun tvar e
-                              if t == TString then return (Imp e')
-                              else do errorMsg $ "Nao e possivel printar o tipo: " ++ show t
-                                      return (Imp e') 
+                              return (Imp e')
 
 tCmd tfun tvar _ (Leitura e) = do case tExpr tfun tvar (IdVar e) of
                                     Result(False, _, (_, IdVar x)) -> return (Leitura x)
@@ -252,7 +255,7 @@ tCmd tfun tvar funcao (Proc id variaveis) = do case tfunConsultaParametros tfun 
                                                                                                                    return (Proc id variaveis)
                                                  Result(True, s, _) -> do errorMsg s
                                                                           return (Proc id variaveis)
-                                          
+
 
 -- Verificação de tipos dos Blocos
 
@@ -271,10 +274,12 @@ tFuncao tfun funcao (id, vars, bloco) = do bloco' <- tBloco tfun vars funcao blo
                                                                                   return (funcao, (id, vars, bloco))
                                                 else do errorMsg $ "Funcao " ++ show id ++ " multiplamente declarada\n"
                                                         return (funcao, (id, vars, bloco))
-tListaFuncao [] [] = return([], [])
+tListaFuncao [] [] = return ([], [])
 tListaFuncao tfun@(f:xs) listaf@((id, vars, bloco):ys) = do f' <- tFuncao tfun f (id, vars, bloco)
                                                             listaf' <- tListaFuncao xs ys
-                                                            return (fst f' : fst listaf', snd f' : snd listaf')                                                        
+                                                            return (fst f' : fst listaf', snd f' : snd listaf')
+
+-- 
 
 tPrograma (Prog tfun escopo tvar bloco_principal) = do (tfun', escopo') <- tListaFuncao tfun escopo
                                                        bloco_principal' <- tBloco tfun tvar ("main" :->: ([], TInt)) bloco_principal

@@ -19,8 +19,6 @@ genMainCab s l = return (".method public static main([Ljava/lang/String;)V" ++
 genExprL c tab fun v f (And e1 e2) = do {l1 <- novoLabel; e1' <- genExprL c tab fun l1 f e1; e2' <- genExprL c tab fun v f e2; return (e1'++l1++":\n"++e2')}
 -- todo
 
--- genExprR c tab fun v f (Req e1 e2) = do {(t1, e1') <- genExpr c tab fun e1; (t2,e2') <- genExpr c tab fun e2; return (e1'++e2'++genRel t1 t2 v "eq"++"\tgoto "++f++"\n")}
--- -- todo
 
 genExpr c tab fun (Const (CInt i)) = return (TInt, genInt i)
 genExpr c tab fun (Const (CDouble d)) = return (TDouble, genDouble d)
@@ -96,6 +94,28 @@ empilhaExpr _ _ _ _ [] = return ""
 empilhaExpr c tab fun id (expr:xs) = do (t, expr') <- genExpr c tab fun expr
                                         resto <- empilhaExpr c tab fun id xs
                                         return (expr' ++ resto)
+
+genExprR c tab fun v f (Req e1 e2) = genExprRAux c tab fun v f Req e1 e2
+genExprR c tab fun v f (Rdif e1 e2) = genExprRAux c tab fun v f Rdif e1 e2
+genExprR c tab fun v f (Rlt e1 e2) = genExprRAux c tab fun v f Rlt e1 e2
+genExprR c tab fun v f (Rle e1 e2) = genExprRAux c tab fun v f Rle e1 e2
+genExprR c tab fun v f (Rgt e1 e2) = genExprRAux c tab fun v f Rgt e1 e2
+genExprR c tab fun v f (Rge e1 e2) = genExprRAux c tab fun v f Rge e1 e2
+
+genExprRAux c tab fun v f op e1 e2 = do (t1, e1') <- genExpr c tab fun e1
+                                        (t2, e2') <- genExpr c tab fun e2
+                                        case op e1 e2 of
+                                            (Req e1 e2) -> return(e1' ++ e2'++ genRel t1 t2 v "eq" ++ "\tgoto " ++ show f ++ "\n")
+                                            (Rdif e1 e2) -> return(e1' ++ e2'++ genRel t1 t2 v "ne" ++ "\tgoto " ++ show f ++ "\n")
+                                            (Rlt e1 e2) -> return(e1' ++ e2'++ genRel t1 t2 v "lt" ++ "\tgoto " ++ show f ++ "\n")
+                                            (Rle e1 e2) -> return(e1' ++ e2'++ genRel t1 t2 v "le" ++ "\tgoto " ++ show f ++ "\n")
+                                            (Rgt e1 e2) -> return(e1' ++ e2'++ genRel t1 t2 v "gt" ++ "\tgoto " ++ show f ++ "\n")
+                                            (Rge e1 e2) -> return(e1' ++ e2'++ genRel t1 t2 v "ge" ++ "\tgoto " ++ show f ++ "\n")
+
+genRel t1 t2 label_v op = case (t1, t2) of
+                              (TInt, TInt) -> "if_icmp" ++ op ++ " " ++ show label_v ++ "\n"
+                              (TDouble, TDouble) -> "dcmpg\nif" ++ op ++ " " ++ show label_v ++ "\n"
+                              -- _ -> "Erro na comparação: argumentos de tipos diferentes"
 
 -- genCmd c tab fun (While e b) = do {li <- novoLabel; lv <- novoLabel; lf <- novoLabel; e' <- genExprL c tab fun lv lf e; b' <- genBloco c tab fun b; return (li++":\n"++e'++lv++":\n"++b'++"\tgoto "++li++"\n"++lf++":\n")}
 -- -- todo

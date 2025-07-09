@@ -9,7 +9,7 @@ int fatorial(int n) {
 
 double calcula_media(int a, int b) {
     double resultado;
-    resultado = ((a + b) / 2);
+    resultado = ((a + b) / 2.0);
     return resultado;
 }
 

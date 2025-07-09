@@ -50,12 +50,11 @@ main = do
     hPutStrLn outputHandle mensagens  -- Escreve erros ou avisos no arquivo
     hPrint outputHandle resultado  -- Escreve o resultado final no arquivo
 
-    -- Gera bytecode
-    let bytecode = gen "Main" resultado
-    putStrLn "\nBytecode:"
-    putStr bytecode
-
-    writeFile "Main.j" bytecode
+    if erro then putStrLn "Erro: Na compilacao"
+    else do let bytecode = gen "Main" resultado
+            putStrLn "\nBytecode:"
+            putStr bytecode
+            writeFile "Main.j" bytecode
 
     hClose handle
     hClose outputHandle

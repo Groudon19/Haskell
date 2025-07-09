@@ -9,7 +9,7 @@ novoLabel::State Int String
 novoLabel = do {n <- get; put (n+1); return ("l"++show n)}
 
 genCab nome = return (".class public " ++ nome ++
-                      "\n.super java/lang/Object\n\n.method public <init>()V\n\taload_0\n\tinvokenonvirtual java/lang/Object/<init>()V\n\treturn\n.end method\n\n")
+                      "\n.super java/lang/Object\n\n.method public <init>()V\n\taload_0\n\tinvokespecial java/lang/Object/<init>()V\n\treturn\n.end method\n\n")
 
 genMainCab s l = return (".method public static main([Ljava/lang/String;)V" ++
                          "\n\t.limit stack " ++ show s ++
@@ -31,8 +31,8 @@ genExpr c tab fun (Neg e) = do (t, e') <- genExpr c tab fun e
 
 genCast c tab fun op e = do (t, e') <- genExpr c tab fun e
                             case op e of
-                                (IntDouble e) -> return (TDouble, e' ++ "i2d\n")
-                                (DoubleInt e) -> return (TInt, e' ++ "d2i\n")
+                                (IntDouble e) -> return (TDouble, e' ++ "\ti2d\n")
+                                (DoubleInt e) -> return (TInt, e' ++ "\td2i\n")
 
 genExprAux c tab fun op e1 e2 = do (t1, e1') <- genExpr c tab fun e1;
                                    (t2, e2') <- genExpr c tab fun e2;
@@ -42,39 +42,39 @@ genExprAux c tab fun op e1 e2 = do (t1, e1') <- genExpr c tab fun e1;
                                     (Mul e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "mul\n")
                                     (Div e1 e2) -> return (t1, e1' ++ e2' ++ genOp t1 "div\n")
 
-genInt n | n <= 5 = "iconst " ++ show n ++ "\n"
-         | n <= 127 = "bipush " ++ show n ++ "\n"
-         | otherwise = "ldc " ++ show n ++ "\n"
+genInt n | n <= 5 = "\ticonst " ++ show n ++ "\n"
+         | n <= 127 = "\tbipush " ++ show n ++ "\n"
+         | otherwise = "\tldc " ++ show n ++ "\n"
 
-genDouble n = "ldc " ++ show n ++ "\n"
+genDouble n = "\tldc " ++ show n ++ "\n"
 
-genString n = "ldc " ++ show n ++ "\n"
+genString n = "\tldc " ++ show n ++ "\n"
 
 verificaTabTipo [] nome = (TVoid, "")
 verificaTabTipo tvar@(id :#: (tipo, endereco):xs) nome = if nome == id then (tipo, genLoad tipo endereco)
                                                          else verificaTabTipo xs nome
 
 genLoad tipo endereco = case tipo of
-                            TString -> "aload " ++ show endereco ++ "\n"
-                            TInt -> if endereco >= 0 && endereco <= 5 then "iload_" ++ show endereco ++ "\n"
-                                    else if endereco >= 6 && endereco <= 255 then "iload " ++ show endereco ++ "\n"
-                                    else "wide\n"++"iload " ++ show endereco ++ "\n"
-                            TDouble -> if endereco >= 0 && endereco <= 5 then "dload_" ++ show endereco ++ "\n"
-                                       else if endereco >= 6 && endereco <= 255 then "dload " ++ show endereco ++ "\n"
-                                       else "wide\n"++"dload " ++ show endereco ++ "\n"
+                            TString -> "\taload " ++ show endereco ++ "\n"
+                            TInt -> if endereco >= 0 && endereco <= 5 then "\tiload_" ++ show endereco ++ "\n"
+                                    else if endereco >= 6 && endereco <= 255 then "\tiload " ++ show endereco ++ "\n"
+                                    else "\twide\n"++"\tiload " ++ show endereco ++ "\n"
+                            TDouble -> if endereco >= 0 && endereco <= 5 then "\tdload_" ++ show endereco ++ "\n"
+                                       else if endereco >= 6 && endereco <= 255 then "\tdload " ++ show endereco ++ "\n"
+                                       else "\twide\n"++"\tdload " ++ show endereco ++ "\n"
 
 genOp t op = case t of
-               TInt -> "i" ++ op
-               TDouble -> "d" ++ op
+               TInt -> "\ti" ++ op
+               TDouble -> "\td" ++ op
             --    _ -> "Erro na geracao de codigo: operacao " ++ show op ++ " nao suporta o tipo " ++ show t
 
-genCall c tab fun id lista_expr = do (t, call) <- verificaFun fun id
+genCall c tab fun id lista_expr = do (t, call) <- verificaFun c fun id
                                      lista_expr' <- empilhaExpr c tab fun id lista_expr
                                      return (t, lista_expr' ++ call)
 
-verificaFun [] _ = return (TVoid, "")
-verificaFun fun@(id :->: (parametros, tipo):xs) nome = if nome == id then return (tipo, "invokestatic " ++ nome ++ "(" ++  verificaTipos parametros ++ ")" ++ show tipo ++ "\n")
-                                                       else verificaFun xs nome
+verificaFun _ [] _ = return (TVoid, "")
+verificaFun c fun@(id :->: (parametros, tipo):xs) nome = if nome == id then return (tipo, "\tinvokestatic " ++ c ++" /" ++ nome ++ "(" ++  verificaTipos parametros ++ ")" ++ genTipo tipo ++ "\n")
+                                                       else verificaFun c xs nome
 
 verificaTipos [] = ""
 verificaTipos tab@(id :#: (tipo, endereco):xs) = genTipo tipo ++ verificaTipos xs
@@ -108,8 +108,9 @@ genExprRAux c tab fun v f op e1 e2 = do (t1, e1') <- genExpr c tab fun e1
                                             (Rge e1 e2) -> return (e1' ++ e2'++ genRel t1 t2 v "ge" ++ "\tgoto " ++ f ++ "\n")
 
 genRel t1 t2 label_v op = case (t1, t2) of
-                              (TInt, TInt) -> "if_icmp" ++ op ++ " " ++ label_v ++ "\n"
-                              (TDouble, TDouble) -> "dcmpg\nif" ++ op ++ " " ++ label_v ++ "\n"
+                              (TInt, TInt) -> "\tif_icmp" ++ op ++ " " ++ label_v ++ "\n"
+                              (TString, TString) -> "\tif_acmp" ++ op ++ " " ++ label_v ++ "\n"
+                              (TDouble, TDouble) -> "\tdcmpg\nif" ++ op ++ " " ++ label_v ++ "\n"
                               -- _ -> "Erro na comparação: argumentos de tipos diferentes"
 genExprL c tab fun v f (And e1 e2) = do l1 <- novoLabel
                                         e1' <- genExprL c tab fun l1 f e1
@@ -132,9 +133,9 @@ genCmd c tab fun (Ret e) = case e of
                                Just e -> do (t, e') <- genExpr c tab fun e
                                             return (e' ++ genTipoReturn t)
 genCmd c tab fun (Imp e) = do (t,e') <- genExpr c tab fun e;
-                              (d,s) <- return (TVoid, "getstatic java/lang/System/out LJava/io/Printstream;\n");
+                              (d,s) <- return (TVoid, "\tgetstatic java/lang/System/out LJava/io/PrintStream;\n");
                               (d,s) <- return (TVoid, s ++ e');
-                              (d,s) <- return (TVoid, s ++ ("invokevirtual java/io/PrintStream/println("++genTipo t++")V\n"));
+                              (d,s) <- return (TVoid, s ++ ("\tinvokevirtual java/io/PrintStream/println("++genTipo t++")V\n"));
                               return s
 genCmd c tab fun (Atrib id expr) = do (t, expr') <- genExpr c tab fun expr
                                       let (nome :#: (tipo, endereco)) = verificaTab tab id
@@ -158,27 +159,27 @@ genCmd c tab fun (While e b) = do li <- novoLabel
                                   b' <- genBloco c tab fun b
                                   return (li++":\n"++e'++lv++":\n"++b'++"\tgoto "++li++"\n"++lf++":\n")
 genCmd c tab fun (Proc id lista_expr) = do (tipo, lista_expr') <- genExpr c tab fun (Chamada id lista_expr)
-                                           let pop = if tipo /= TVoid then "pop\n" else "" -- O output de um proc nunca é utilizado, se for utilizado é uma chamada
+                                           let pop = if tipo /= TVoid then "\tpop\n" else "" -- O output de um proc nunca é utilizado, se for utilizado é uma chamada
                                            return (lista_expr' ++ pop)
 
 genTipoReturn t = case t of
-                      TInt -> "ireturn\n"
-                      TDouble -> "dreturn\n"
-                      TString -> "areturn\n"
-                      TVoid -> "return\n"
+                      TInt -> "\tireturn\n"
+                      TDouble -> "\tdreturn\n"
+                      TString -> "\tareturn\n"
+                      TVoid -> "\treturn\n"
 
 verificaTab [] _ = ("" :#: (TVoid, -1))
 verificaTab tab@(var@(id :#: (tipo, endereco)):xs) nome = if nome == id then var
                                                           else verificaTab xs nome
 
 genStore tipo endereco = case tipo of
-                            TString -> "astore " ++ show endereco ++ "\n"
-                            TInt -> if endereco >= 0 && endereco <= 5 then "istore_" ++ show endereco ++ "\n"
-                                    else if endereco >= 6 && endereco <= 255 then "istore " ++ show endereco ++ "\n"
-                                    else "wide\n"++"istore " ++ show endereco ++ "\n"
-                            TDouble -> if endereco >= 0 && endereco <= 5 then "dstore_" ++ show endereco ++ "\n"
-                                       else if endereco >= 6 && endereco <= 255 then "dstore " ++ show endereco ++ "\n"
-                                       else "wide\n"++"dstore " ++ show endereco ++ "\n"
+                            TString -> "\tastore " ++ show endereco ++ "\n"
+                            TInt -> if endereco >= 0 && endereco <= 5 then "\tistore_" ++ show endereco ++ "\n"
+                                    else if endereco >= 6 && endereco <= 255 then "\tistore " ++ show endereco ++ "\n"
+                                    else "\twide\n"++"\tistore " ++ show endereco ++ "\n"
+                            TDouble -> if endereco >= 0 && endereco <= 5 then "\tdstore_" ++ show endereco ++ "\n"
+                                       else if endereco >= 6 && endereco <= 255 then "\tdstore " ++ show endereco ++ "\n"
+                                       else "\twide\n"++"\tdstore " ++ show endereco ++ "\n"
 
 genFunc c tab fun f@(id :->: (parametros, tipo)) bloco = do b' <- genBloco c tab fun bloco
                                                             return (".method public static " ++ id ++ "(" ++ verificaTipos parametros ++ ")" ++ genTipo tipo ++ "\n"
@@ -198,6 +199,8 @@ genProg c (Prog fun escopos vars_main bloco_principal) = do cabecalho <- genCab 
                                                             cabecalhoMain <- genMainCab 50 8 -- chutei
                                                             bloco_principal' <- genBloco c vars_main fun bloco_principal
                                                             return (cabecalho ++ funcoes ++ cabecalhoMain ++ bloco_principal' ++ ".end method\n\n")
+
+gen nomePrograma ast = evalState (genProg nomePrograma ast) 0
 
 -- tab: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
 -- tfun: ["fat" :->: (["n" :#: (TInt, 0), "nome" :#: (TString, 0), "precisa" :#: (TDouble, 0)], TInt)]

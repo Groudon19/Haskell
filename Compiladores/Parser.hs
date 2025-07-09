@@ -11,7 +11,7 @@
 #if __GLASGOW_HASKELL__ >= 710
 {-# LANGUAGE PartialTypeSignatures #-}
 #endif
-module ParserRi where
+module Parser where
 
 import Token
 import Ri

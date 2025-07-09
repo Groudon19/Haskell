@@ -22,6 +22,22 @@ errorMsg s = Result (True, "Erro: "++s++"\n", ())
 
 warningMsg s = Result (False, "Advertencia:"++s++"\n", ())
 
+novoIndice :: Tipo -> State Int Int
+novoIndice tipo
+  | tipo == TDouble = do n <- get
+                         put (n+2)
+                         return n
+  | tipo == TInt || tipo == TString = do n <- get
+                                         put (n+1)
+                                         return n
+  | otherwise = return 0
+
+
+calculaIndices [] = return []
+calculaIndices ((id :#: (tipo, _)):xs) = do idc <- novoIndice tipo
+                                            resto <- calculaIndices xs
+                                            return ((id :#: (tipo, idc)) : resto)
+
 coercao op e1 e2 t1 t2 | t1 == t2                    = return (t1, op e1 e2)
                        | t1 == TInt && t2 == TDouble = return (t2, op (IntDouble e1) e2)
                        | t1 == TDouble && t2 == TInt = return (t1, op e1 (IntDouble e2))
@@ -270,7 +286,8 @@ tBloco tfun tvar funcao (cmd : listaComandos) = do listaComandos' <- tBloco tfun
 
 tFuncao tfun funcao (id, vars, bloco) = do bloco' <- tBloco tfun vars funcao bloco
                                            vars' <- tvarVerificaDuplicatas vars
-                                           if tfunConta tfun id == 1 then return (funcao, (id, vars', bloco'))
+                                           let vars'' = evalState (calculaIndices vars') 0
+                                           if tfunConta tfun id == 1 then return (funcao, (id, vars'', bloco'))
                                            else if tfunConta tfun id == 0 then do errorMsg $ "Funcao " ++ show id ++ " nao declarada\n"
                                                                                   return (funcao, (id, vars, bloco))
                                                 else do errorMsg $ "Funcao " ++ show id ++ " multiplamente declarada\n"
@@ -286,4 +303,5 @@ tListaFuncao tfun@(f:xs) listaf@((id, vars, bloco):ys) = do f' <- tFuncao tfun f
 tPrograma (Prog tfun escopo tvar bloco_principal) = do (tfun', escopo') <- tListaFuncao tfun escopo
                                                        bloco_principal' <- tBloco tfun tvar ("main" :->: ([], TInt)) bloco_principal
                                                        tvar' <- tvarVerificaDuplicatas tvar
-                                                       return (Prog tfun' escopo' tvar' bloco_principal')
+                                                       let tvar'' = evalState (calculaIndices tvar') 0
+                                                       return (Prog tfun' escopo' tvar'' bloco_principal')

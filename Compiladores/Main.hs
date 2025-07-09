@@ -6,6 +6,7 @@ import ParserRi as P
 import qualified Lex as L
 import Ri
 import Semantico
+import Gera_codigo
 
 
 main :: IO ()

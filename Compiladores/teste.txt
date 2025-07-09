@@ -11,6 +11,6 @@ int fat ( int n ) {
   double b;
   string c;
   double d; 
-  a = 6;
-  fat(a);
+  b = 6;
+  d = 18.2;
 }

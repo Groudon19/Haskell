@@ -13,10 +13,7 @@ genCab nome = return (".class public " ++ nome ++
 
 genMainCab s l = return (".method public static main([Ljava/lang/String;)V" ++
                          "\n\t.limit stack " ++ show s ++
-                         "\n\t.limit locals " ++ show l ++ "\n\n")
-
-
-
+                         "\n\t.limit locals " ++ show l ++ "\n\n") 
 
 genExpr c tab fun (Const (CInt i)) = return (TInt, genInt i)
 genExpr c tab fun (Const (CDouble d)) = return (TDouble, genDouble d)
@@ -183,6 +180,24 @@ genStore tipo endereco = case tipo of
                                        else if endereco >= 6 && endereco <= 255 then "dstore " ++ show endereco ++ "\n"
                                        else "wide\n"++"dstore " ++ show endereco ++ "\n"
 
+genFunc c tab fun f@(id :->: (parametros, tipo)) bloco = do b' <- genBloco c tab fun bloco
+                                                            return(".method public static " ++ id ++ "(" ++ verificaTipos parametros ++ ")" ++ genTipo tipo ++ "\n"
+                                                                   ++ "\t.limit stack 50\n"
+                                                                   ++ "\t.limit locals 8\n"
+                                                                   ++ b'
+                                                                   ++ ".end method\n\n")
+
+
+genFuncoes _ [] [] = return ""
+genFuncoes c fun@(f:xs) escopos@((id, vars, bloco):ys) = do f' <- genFunc c vars fun f bloco
+                                                            resto <- genFuncoes c xs ys
+                                                            return (f' ++ resto)
+
+genProg c (Prog fun escopos vars_main bloco_principal) = do cabecalho <- genCab c
+                                                            funcoes <- genFuncoes c fun escopos
+                                                            cabecalhoMain <- genMainCab 50 8 -- chutei
+                                                            bloco_principal' <- genBloco c vars_main fun bloco_principal
+                                                            return(cabecalho ++ funcoes ++ cabecalhoMain ++ bloco_principal' ++ ".end method\n\n")
 
 -- tab: ["x" :#: (TInt, 0), "nome_user" :#: (TString, 0), "precisao" :#: (TDouble, 0)]
 -- tfun: ["fat" :->: (["n" :#: (TInt, 0), "nome" :#: (TString, 0), "precisa" :#: (TDouble, 0)], TInt)]

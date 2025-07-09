@@ -8,6 +8,9 @@ int fat ( int n ) {
 
 { 
   int a;
+  double b;
+  string c;
+  double d; 
   a = 6;
   fat(a);
 }

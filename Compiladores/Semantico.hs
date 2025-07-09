@@ -3,6 +3,7 @@ module Semantico where
 import System.IO
 import Ri
 import qualified Lex as L
+import Control.Monad.State
 
 data Result a = Result (Bool, String, a) deriving Show
 
@@ -274,6 +275,7 @@ tFuncao tfun funcao (id, vars, bloco) = do bloco' <- tBloco tfun vars funcao blo
                                                                                   return (funcao, (id, vars, bloco))
                                                 else do errorMsg $ "Funcao " ++ show id ++ " multiplamente declarada\n"
                                                         return (funcao, (id, vars, bloco))
+                                                        
 tListaFuncao [] [] = return ([], [])
 tListaFuncao tfun@(f:xs) listaf@((id, vars, bloco):ys) = do f' <- tFuncao tfun f (id, vars, bloco)
                                                             listaf' <- tListaFuncao xs ys
